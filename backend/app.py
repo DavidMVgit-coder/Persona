@@ -9,7 +9,11 @@ from i18n import langue_valide, t
 from phone import analyser_numero
 from rules import analyser_regles
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    template_folder=str(config.FRONTEND_DIR / "templates"),
+    static_folder=str(config.FRONTEND_DIR / "static"),
+)
 
 # Le modèle est optionnel : sans model.joblib, on utilise seulement les règles
 MODEL = joblib.load(config.MODEL_PATH) if config.MODEL_PATH.exists() else None

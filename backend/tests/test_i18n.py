@@ -1,7 +1,3 @@
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-
 from abus import analyser_abus
 from i18n import TEXTES
 from phone import analyser_numero

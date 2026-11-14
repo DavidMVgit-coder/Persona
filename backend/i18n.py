@@ -92,10 +92,14 @@ def citer(langue: str, mots, n: int = 3) -> str:
     return ", ".join(f"{gauche}{m}{droite}" for m in list(mots)[:n])
 
 
+def separateur(langue: str) -> str:
+    """Deux-points à la française (« : ») ou à l'anglaise (": ")."""
+    return " : " if langue_valide(langue) == "fr" else ": "
+
+
 def expliquer(langue: str, intro: str, mots, n: int = 3) -> str:
     """« Intro : « a », « b » » en français ; 'Intro: "a", "b"' en anglais."""
-    separateur = " : " if langue_valide(langue) == "fr" else ": "
-    return intro + separateur + citer(langue, mots, n)
+    return intro + separateur(langue) + citer(langue, mots, n)
 
 
 def avec_exemples(langue: str, cle: str, mots, n: int = 3) -> str:

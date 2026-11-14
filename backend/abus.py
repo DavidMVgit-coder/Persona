@@ -11,7 +11,7 @@ import re
 import config
 from dictionnaire import DICO
 from i18n import DEFAUT, expliquer
-from normalisation import normaliser
+from normalisation import motif_mots, normaliser
 
 
 def _charger_ldnoobw() -> list[str]:
@@ -27,8 +27,7 @@ def _charger_ldnoobw() -> list[str]:
 def _motif(mots):
     """Motif sur la forme normalisée + table pour réafficher le mot avec ses accents."""
     forme = {normaliser(m): m for m in reversed(mots)}
-    alt = "|".join(sorted((re.escape(f) for f in forme), key=len, reverse=True))
-    return re.compile(rf"(?<!\w)(?:{alt})(?!\w)"), forme
+    return motif_mots(forme), forme
 
 
 # Catégories du dictionnaire (insultes, menaces, diffamation, propagation…)

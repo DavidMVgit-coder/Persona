@@ -1,13 +1,10 @@
-import sys
+"""Google Safe Browsing : liens signalés, panne de Google, cache (aucun appel réseau réel)."""
 import urllib.error
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import pytest
 
 import config
 import safebrowsing
-from abus import analyser_abus
 from rules import analyser_regles
 
 LIEN = "https://exemple-dangereux.com/connexion"
@@ -69,15 +66,3 @@ def test_cache(google):
     safebrowsing.verifier([LIEN])
     safebrowsing.verifier([LIEN])
     assert len(appels) == 1
-
-
-@pytest.mark.parametrize("texte", [
-    "Une belle gerbe de fleurs", "Il a pêché une tanche", "Mon chat et ma chatte",
-    "Diplômé cum laude", "The rooster (cock) crowed", "This movie sucks",
-])
-def test_ldnoobw_double_sens_ignores(texte):
-    assert analyser_abus(texte) == []
-
-
-def test_ldnoobw_detecte_meme_camoufle():
-    assert any("vulgaire" in a for a in analyser_abus("espèce de p0uffi@sse"))

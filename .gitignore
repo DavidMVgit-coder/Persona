@@ -3,6 +3,6 @@ __pycache__/
 *.pyc
 .env
 model.joblib
-data/feedback.csv
+backend/data/feedback.csv
 .pytest_cache/
 node_modules/

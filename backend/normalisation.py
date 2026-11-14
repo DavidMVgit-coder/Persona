@@ -75,6 +75,12 @@ def normaliser(texte: str) -> str:
     return normaliser_simple(s)
 
 
+def motif_mots(formes) -> re.Pattern:
+    """Regex qui trouve l'une des formes (déjà normalisées) en mot entier, la plus longue d'abord."""
+    alt = "|".join(sorted({re.escape(f) for f in formes}, key=len, reverse=True))
+    return re.compile(rf"(?<!\w)(?:{alt})(?!\w)")
+
+
 def caracteres_trompeurs(texte: str, langue: str = DEFAUT) -> list[str]:
     """Signaux qui ne s'expliquent presque jamais dans un message honnête."""
     raisons = []

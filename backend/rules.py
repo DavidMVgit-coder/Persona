@@ -5,8 +5,8 @@ from urllib.parse import urlparse
 
 import safebrowsing
 from dictionnaire import DICO, Raison
-from i18n import DEFAUT, TEXTES, avec_exemples, expliquer, t
-from normalisation import caracteres_trompeurs, normaliser, normaliser_simple
+from i18n import DEFAUT, TEXTES, avec_exemples, expliquer, separateur, t
+from normalisation import caracteres_trompeurs, motif_mots, normaliser, normaliser_simple
 
 URL_RE = re.compile(r"https?://[^\s<>\"']+", re.I)
 PONCTUATION_FIN = ".,;:!?)]}»"
@@ -16,11 +16,6 @@ IP_RE = re.compile(r"^\d{1,3}(\.\d{1,3}){3}$")
 RACCOURCIS = DICO.raccourcis
 TLD_SUSPECTS = DICO.extensions_suspectes
 MARQUES = DICO.marques            # marque (sans tirets ni espaces) -> domaines officiels
-
-
-def _motif(formes):
-    alt = "|".join(sorted({re.escape(f) for f in formes}, key=len, reverse=True))
-    return re.compile(rf"(?<!\w)(?:{alt})(?!\w)")
 
 
 @dataclass(frozen=True)
@@ -35,8 +30,8 @@ class Motif:
 
 def _preparer(categorie) -> Motif:
     forme = {normaliser(m): m for m in reversed(categorie.mots)}     # le premier mot du fichier gagne
-    simple = {normaliser(m): _motif([normaliser_simple(m)]) for m in categorie.mots}
-    return Motif(categorie.raison, categorie.points, _motif(forme), forme, simple)
+    simple = {normaliser(m): motif_mots([normaliser_simple(m)]) for m in categorie.mots}
+    return Motif(categorie.raison, categorie.points, motif_mots(forme), forme, simple)
 
 
 MOTIFS = [_preparer(c) for c in DICO.scam]
@@ -136,8 +131,7 @@ def analyser_regles(texte: str, langue: str = DEFAUT):
     for cat in DICO.emojis:
         vus = list(dict.fromkeys(e for e in emojis if e in cat.emojis))
         if vus:
-            sep = " : " if langue == "fr" else ": "
-            raisons.append(f"{cat.raison.texte(langue)}{sep}{' '.join(vus[:5])}"); score += cat.points
+            raisons.append(f"{cat.raison.texte(langue)}{separateur(langue)}{' '.join(vus[:5])}"); score += cat.points
     if len(emojis) >= 5:
         raisons.append(t(langue, "emo.beaucoup", n=len(emojis))); score += 10
 

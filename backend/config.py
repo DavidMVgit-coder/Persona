@@ -1,7 +1,8 @@
 import os
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).resolve().parent                  # backend/
+FRONTEND_DIR = BASE_DIR.parent / "frontend"                 # page web servie par Flask
 
 
 def _charger_env(chemin: Path) -> None:
