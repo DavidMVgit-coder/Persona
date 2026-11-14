@@ -5,3 +5,4 @@ __pycache__/
 model.joblib
 data/feedback.csv
 .pytest_cache/
+node_modules/
