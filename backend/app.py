@@ -19,6 +19,8 @@ app = Flask(
 MODEL = joblib.load(config.MODEL_PATH) if config.MODEL_PATH.exists() else None
 if MODEL is None:
     print("model.joblib introuvable : lance `python train.py` (mode règles seulement).")
+if not (config.FRONTEND_DIR / "static" / "js" / "app.js").exists():
+    print("frontend/static/js/app.js introuvable : lance `npm install` puis `npm run build` dans frontend/.")
 
 
 def niveau(score: int) -> str:
