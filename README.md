@@ -51,6 +51,12 @@ Persona/
 └── README.md          # Documentation du projet
 ```
 
+---
+
+## 💁 Plus d'informations 
+**Pour avoir plus de détails sur notre projet, vous pouvez naviguer sur notre page NOTION**
+[Cliquer ici pour avoir accès à NOTION](https://app.notion.com/p/Hackathon-4185e7aa6ed280b6b83ed8f9e2434535)
+
 ## 🇬🇧 English Version
 
 > A modern application designed to explore user profiling, interpersonal communication, and interactive data management.
@@ -95,3 +101,9 @@ Persona/
 ├── pom.xml            # Dependency management (or requirements.txt)
 └── README.md          # Project documentation
 ```
+
+---
+
+## 💁 More details
+**For more details, you can navigate through to our page NOTION**
+[Click here to visit NOTION](https://app.notion.com/p/Hackathon-4185e7aa6ed280b6b83ed8f9e2434535)
