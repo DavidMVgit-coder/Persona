@@ -6,37 +6,42 @@
 <title>Détecteur de scams</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 <main>
-  <div class="langues" role="group" aria-label="Langue" data-i18n-aria="langue.groupe">
-    <button type="button" data-langue="fr" lang="fr" aria-pressed="true">FR</button>
-    <button type="button" data-langue="en" lang="en" aria-pressed="false">EN</button>
-  </div>
+  <header class="entete">
+    <span class="marque">Persona</span>
+    <div class="langues" role="group" aria-label="Langue" data-i18n-aria="langue.groupe">
+      <button type="button" data-langue="fr" lang="fr" aria-pressed="true">FR</button>
+      <button type="button" data-langue="en" lang="en" aria-pressed="false">EN</button>
+    </div>
+  </header>
 
   <h1 data-i18n="titre">Ce message est-il un scam&nbsp;?</h1>
   <p class="intro" data-i18n="intro">Colle un texto, un courriel ou un numéro de téléphone. L’analyse te donne un niveau de risque et les raisons derrière.</p>
 
-  <div class="types" role="radiogroup" aria-label="Type de contenu à analyser" data-i18n-aria="types.groupe">
-    <label><input type="radio" name="type" value="message" checked><span data-i18n="type.message">Message</span></label>
-    <label><input type="radio" name="type" value="email"><span data-i18n="type.email">Courriel</span></label>
-    <label><input type="radio" name="type" value="phone"><span data-i18n="type.phone">Téléphone</span></label>
-  </div>
+  <div class="panneau">
+    <div class="types" role="radiogroup" aria-label="Type de contenu à analyser" data-i18n-aria="types.groupe">
+      <label><input type="radio" name="type" value="message" checked><span data-i18n="type.message">Message</span></label>
+      <label><input type="radio" name="type" value="email"><span data-i18n="type.email">Courriel</span></label>
+      <label><input type="radio" name="type" value="phone"><span data-i18n="type.phone">Téléphone</span></label>
+    </div>
 
-  <div id="zone-texte">
-    <label for="contenu-texte" class="sr-only" style="position:absolute;left:-9999px" data-i18n="label.texte">Contenu à analyser</label>
-    <textarea id="contenu-texte" placeholder="Colle le message ici"></textarea>
-  </div>
-  <div id="zone-tel" hidden>
-    <label for="contenu-tel" class="sr-only" style="position:absolute;left:-9999px" data-i18n="label.tel">Numéro de téléphone</label>
-    <input id="contenu-tel" type="tel" inputmode="tel" placeholder="Ex. 514 555-0123">
-  </div>
+    <div id="zone-texte">
+      <label for="contenu-texte" class="sr-only" style="position:absolute;left:-9999px" data-i18n="label.texte">Contenu à analyser</label>
+      <textarea id="contenu-texte" placeholder="Colle le message ici"></textarea>
+    </div>
+    <div id="zone-tel" hidden>
+      <label for="contenu-tel" class="sr-only" style="position:absolute;left:-9999px" data-i18n="label.tel">Numéro de téléphone</label>
+      <input id="contenu-tel" type="tel" inputmode="tel" placeholder="Ex. 514 555-0123">
+    </div>
 
-  <div class="row">
-    <button id="btn-analyser" class="primary" type="button">Analyser</button>
-    <button id="btn-exemple" class="ghost" type="button" data-i18n="btn.exemple">Essayer un exemple</button>
+    <div class="row">
+      <button id="btn-analyser" class="primary" type="button">Analyser</button>
+      <button id="btn-exemple" class="ghost" type="button" data-i18n="btn.exemple">Essayer un exemple</button>
+    </div>
   </div>
 
   <section id="resultat" aria-live="polite"></section>

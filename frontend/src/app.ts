@@ -150,7 +150,9 @@ function afficherResultat(r: ResultatAnalyse, type: TypeContenu, contenu: string
   titre.textContent = tr(estCle(cleVerdict) ? cleVerdict : "verdict.inconnu");
   const score = document.createElement("span");
   score.className = "score";
-  score.textContent = `${r.score} / 100`;
+  const valeur = document.createElement("b");
+  valeur.textContent = String(r.score);
+  score.append(valeur, " / 100");
   verdict.append(titre, score);
 
   const jauge = document.createElement("div");
