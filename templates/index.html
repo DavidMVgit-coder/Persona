@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Détecteur de scams</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #eef2f6;
+    --surface: #ffffff;
+    --ink: #1b2a41;
+    --muted: #5a6b82;
+    --line: #cfd8e3;
+    --accent: #1f4e8c;
+    --low: #2e7d4f;
+    --mid: #c27a00;
+    --high: #b3261e;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #121a26;
+      --surface: #1b2535;
+      --ink: #e6ecf5;
+      --muted: #9aabc2;
+      --line: #33435c;
+      --accent: #7fb0ee;
+      --low: #5cc489;
+      --mid: #e3a63a;
+      --high: #f2867f;
+      color-scheme: dark;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-padding-top: 1rem; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 1.0625rem;
+    line-height: 1.55;
+  }
+  main {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: 2.5rem 1.25rem 4rem;
+  }
+  h1 { font-size: 1.9rem; line-height: 1.2; margin: 0 0 .5rem; }
+  .intro { color: var(--muted); margin: 0 0 2rem; max-width: 36rem; }
+
+  /* Choix du type d'analyse */
+  .types {
+    display: flex;
+    border: 2px solid var(--ink);
+    border-radius: 999px;
+    padding: 3px;
+    background: var(--surface);
+    margin-bottom: 1rem;
+  }
+  .types label { flex: 1; }
+  .types input { position: absolute; opacity: 0; pointer-events: none; }
+  .types span {
+    display: block;
+    text-align: center;
+    padding: .55rem .5rem;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .types input:checked + span { background: var(--ink); color: var(--bg); }
+  .types input:focus-visible + span { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+  /* Saisie */
+  textarea, input[type="text"], input[type="tel"] {
+    width: 100%;
+    font: inherit;
+    color: var(--ink);
+    background: var(--surface);
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    padding: .8rem .9rem;
+  }
+  textarea { min-height: 11rem; resize: vertical; }
+  textarea:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+
+  .row { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; margin-top: .9rem; }
+  button {
+    font: inherit;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: .7rem 1.3rem;
+    cursor: pointer;
+  }
+  button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .primary { background: var(--accent); color: #fff; border: 2px solid var(--accent); }
+  @media (prefers-color-scheme: dark) { .primary { color: #0c1420; } }
+  .primary:disabled { opacity: .6; cursor: wait; }
+  .ghost { background: transparent; color: var(--ink); border: 2px solid var(--line); font-weight: 400; }
+  .ghost:hover { border-color: var(--ink); }
+
+  /* Résultat */
+  #resultat { margin-top: 2rem; }
+  .carte {
+    background: var(--surface);
+    border: 2px solid var(--line);
+    border-left-width: 10px;
+    border-radius: 10px;
+    padding: 1.25rem 1.4rem;
+  }
+  .carte[data-niveau="faible"] { border-left-color: var(--low); }
+  .carte[data-niveau="moyen"]  { border-left-color: var(--mid); }
+  .carte[data-niveau="élevé"]  { border-left-color: var(--high); }
+
+  .verdict { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  .verdict strong { font-size: 1.35rem; }
+  .score { font-size: 2.2rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .carte[data-niveau="faible"] .score { color: var(--low); }
+  .carte[data-niveau="moyen"]  .score { color: var(--mid); }
+  .carte[data-niveau="élevé"]  .score { color: var(--high); }
+
+  .jauge { height: 12px; background: var(--line); border-radius: 6px; overflow: hidden; margin: .6rem 0 1.1rem; }
+  .jauge > div { height: 100%; width: 0; border-radius: 6px; background: currentColor; transition: width .5s ease; }
+  .carte[data-niveau="faible"] .jauge > div { color: var(--low); }
+  .carte[data-niveau="moyen"]  .jauge > div { color: var(--mid); }
+  .carte[data-niveau="élevé"]  .jauge > div { color: var(--high); }
+
+  .carte h2 { font-size: 1rem; margin: 0 0 .4rem; }
+  .carte ul { margin: 0 0 1rem; padding-left: 1.2rem; }
+  .carte li + li { margin-top: .25rem; }
+  .aucune { color: var(--muted); margin: 0 0 1rem; }
+
+  .retour { border-top: 1px solid var(--line); padding-top: 1rem; }
+  .retour p { margin: 0 0 .6rem; color: var(--muted); }
+  .retour button { padding: .45rem .9rem; margin-right: .5rem; }
+
+  .erreur {
+    border: 2px solid var(--high);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    background: var(--surface);
+  }
+
+  .limite { color: var(--muted); font-size: .95rem; margin-top: 2.5rem; max-width: 36rem; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .jauge > div { transition: none; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>Ce message est-il un scam&nbsp;?</h1>
+  <p class="intro">Colle un texto, un courriel ou un numéro de téléphone. L’analyse te donne un niveau de risque et les raisons derrière.</p>
+
+  <div class="types" role="radiogroup" aria-label="Type de contenu à analyser">
+    <label><input type="radio" name="type" value="message" checked><span>Message</span></label>
+    <label><input type="radio" name="type" value="email"><span>Courriel</span></label>
+    <label><input type="radio" name="type" value="phone"><span>Téléphone</span></label>
+  </div>
+
+  <div id="zone-texte">
+    <label for="contenu-texte" class="sr-only" style="position:absolute;left:-9999px">Contenu à analyser</label>
+    <textarea id="contenu-texte" placeholder="Colle le message ici"></textarea>
+  </div>
+  <div id="zone-tel" hidden>
+    <label for="contenu-tel" class="sr-only" style="position:absolute;left:-9999px">Numéro de téléphone</label>
+    <input id="contenu-tel" type="tel" inputmode="tel" placeholder="Ex. 514 555-0123">
+  </div>
+
+  <div class="row">
+    <button id="btn-analyser" class="primary" type="button">Analyser</button>
+    <button id="btn-exemple" class="ghost" type="button">Essayer un exemple</button>
+  </div>
+
+  <section id="resultat" aria-live="polite"></section>
+
+  <p class="limite">Le résultat est une estimation, pas une certitude. En cas de doute, ne clique sur aucun lien et contacte l’organisme directement avec le numéro officiel.</p>
+</main>
+
+<script>
+  const EXEMPLES = {
+    message: "Postes Canada : votre colis est en attente. Des frais de 2,99 $ sont requis dans les 24 heures sinon il sera retourné. Payez ici : http://postes-canada-suivi.xyz/paiement",
+    email: "Objet : Dernier avis – compte suspendu\n\nBonjour, votre compte Desjardins sera suspendu immédiatement. Confirmez votre mot de passe et votre code de vérification ici : http://bit.ly/3xYzAbc",
+    phone: "+1 809 555 0142"
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const typeCourant = () => document.querySelector('input[name="type"]:checked').value;
+  const contenuCourant = () =>
+    typeCourant() === "phone" ? $("contenu-tel").value.trim() : $("contenu-texte").value.trim();
+
+  // Affiche le bon champ selon le type choisi
+  document.querySelectorAll('input[name="type"]').forEach((radio) => {
+    radio.addEventListener("change", () => {
+      const tel = typeCourant() === "phone";
+      $("zone-tel").hidden = !tel;
+      $("zone-texte").hidden = tel;
+      $("resultat").innerHTML = "";
+      $("contenu-texte").placeholder =
+        typeCourant() === "email" ? "Colle le courriel ici (objet et corps)" : "Colle le message ici";
+    });
+  });
+
+  $("btn-exemple").addEventListener("click", () => {
+    const t = typeCourant();
+    if (t === "phone") $("contenu-tel").value = EXEMPLES.phone;
+    else $("contenu-texte").value = EXEMPLES[t];
+  });
+
+  $("btn-analyser").addEventListener("click", analyser);
+
+  async function analyser() {
+    const contenu = contenuCourant();
+    const type = typeCourant();
+    if (!contenu) {
+      afficherErreur("Ajoute un contenu à analyser avant de lancer l’analyse.");
+      return;
+    }
+
+    const btn = $("btn-analyser");
+    btn.disabled = true;
+    btn.textContent = "Analyse en cours…";
+
+    try {
+      const rep = await fetch("/analyser", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type, contenu })
+      });
+      if (!rep.ok) throw new Error("HTTP " + rep.status);
+      afficherResultat(await rep.json(), type, contenu);
+    } catch (e) {
+      afficherErreur("L’analyse a échoué. Vérifie que le serveur Flask est démarré, puis réessaie.");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Analyser";
+    }
+  }
+
+  const VERDICTS = {
+    "faible": "Risque faible",
+    "moyen": "Risque moyen, prudence",
+    "élevé": "Scam probable"
+  };
+
+  function afficherResultat(r, type, contenu) {
+    const zone = $("resultat");
+    zone.innerHTML = "";
+
+    const carte = document.createElement("div");
+    carte.className = "carte";
+    carte.dataset.niveau = r.niveau;
+
+    const verdict = document.createElement("div");
+    verdict.className = "verdict";
+    const titre = document.createElement("strong");
+    titre.textContent = VERDICTS[r.niveau] || "Résultat";
+    const score = document.createElement("span");
+    score.className = "score";
+    score.textContent = r.score + " / 100";
+    verdict.append(titre, score);
+
+    const jauge = document.createElement("div");
+    jauge.className = "jauge";
+    jauge.setAttribute("role", "img");
+    jauge.setAttribute("aria-label", "Score de risque : " + r.score + " sur 100");
+    const rempli = document.createElement("div");
+    jauge.append(rempli);
+
+    const h2 = document.createElement("h2");
+    h2.textContent = "Pourquoi";
+    carte.append(verdict, jauge, h2);
+
+    if (r.raisons && r.raisons.length) {
+      const ul = document.createElement("ul");
+      r.raisons.forEach((txt) => {
+        const li = document.createElement("li");
+        li.textContent = txt;   // textContent: évite d'injecter du HTML
+        ul.append(li);
+      });
+      carte.append(ul);
+    } else {
+      const p = document.createElement("p");
+      p.className = "aucune";
+      p.textContent = "Aucun signal d’alerte précis n’a été relevé.";
+      carte.append(p);
+    }
+
+    // Retour utilisateur (pour réentraîner le modèle plus tard)
+    const retour = document.createElement("div");
+    retour.className = "retour";
+    const q = document.createElement("p");
+    q.textContent = "Est-ce que l’analyse était juste\u00a0?";
+    const btnScam = document.createElement("button");
+    btnScam.type = "button";
+    btnScam.className = "ghost";
+    btnScam.textContent = "C’était un scam";
+    const btnOk = btnScam.cloneNode();
+    btnOk.textContent = "C’était légitime";
+    btnScam.addEventListener("click", () => envoyerRetour(retour, type, contenu, 1));
+    btnOk.addEventListener("click", () => envoyerRetour(retour, type, contenu, 0));
+    retour.append(q, btnScam, btnOk);
+    carte.append(retour);
+
+    zone.append(carte);
+    requestAnimationFrame(() => { rempli.style.width = Math.max(2, r.score) + "%"; });
+    carte.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+
+  // À ajouter côté Flask : une route POST /feedback qui sauvegarde (type, contenu, label)
+  async function envoyerRetour(conteneur, type, contenu, label) {
+    try {
+      const rep = await fetch("/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type, contenu, label })
+      });
+      if (!rep.ok) throw new Error();
+      conteneur.innerHTML = "<p>Merci, ton retour est enregistré.</p>";
+    } catch (e) {
+      conteneur.innerHTML = "<p>Impossible d’enregistrer le retour pour le moment.</p>";
+    }
+  }
+
+  function afficherErreur(msg) {
+    const zone = $("resultat");
+    zone.innerHTML = "";
+    const div = document.createElement("div");
+    div.className = "erreur";
+    div.setAttribute("role", "alert");
+    div.textContent = msg;
+    zone.append(div);
+  }
+</script>
+</body>
+</html>
