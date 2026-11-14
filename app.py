@@ -99,4 +99,5 @@ def feedback():
 
 
 if __name__ == "__main__":
-    app.run(host=config.HOST, port=config.PORT, debug=True)
+    # extra_files : redémarre aussi quand on modifie le dictionnaire de mots
+    app.run(host=config.HOST, port=config.PORT, debug=True, extra_files=[str(config.DICTIONNAIRE_PATH)])

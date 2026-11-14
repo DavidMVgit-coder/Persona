@@ -21,6 +21,8 @@ MODEL_PATH = BASE_DIR / "model.joblib"
 DATA_PATH = BASE_DIR / "data" / "data.csv"
 FEEDBACK_PATH = BASE_DIR / "data" / "feedback.csv"
 BLACKLIST_PATH = BASE_DIR / "data" / "blacklist.csv"
+DICTIONNAIRE_PATH = BASE_DIR / "data" / "dictionnaire.json"
+LDNOOBW_DIR = BASE_DIR / "data" / "ldnoobw"
 
 API_KEY = os.getenv("API_KEY", "")
 HOST = os.getenv("HOST", "127.0.0.1")

@@ -1,0 +1,819 @@
+{
+  "_lisez_moi": [
+    "Dictionnaire de mots utilisé par le détecteur. Modifie ce fichier, puis redémarre le serveur",
+    "(en mode debug, il redémarre tout seul quand ce fichier change).",
+    "- Les mots sont cherchés comme mots entiers, sans tenir compte des majuscules ni des accents,",
+    "  et aussi quand ils sont camouflés (p@yez, v i r e m e n t, ᴜʀɢᴇɴᴛ…).",
+    "- Les mots fr ET en sont toujours tous cherchés ; « fr » / « en » sert juste à les ranger.",
+    "- scam.<catégorie> : points ajoutés au score si au moins un mot est trouvé (une fois par catégorie).",
+    "- On peut ajouter une catégorie : copier un bloc existant et changer le nom, les points, la raison et les mots.",
+    "- abus.* et accusations : contenu offensant, affiché à part, ne change pas le score de scam.",
+    "- accusations : noms détectés seulement après « est un / c'est une / is a… » (« X est un voleur »).",
+    "- ldnoobw.exclusions : mots des listes data/ldnoobw/ à ignorer (double sens, termes médicaux…)."
+  ],
+  "scam": {
+    "urgence": {
+      "points": 20,
+      "raison": {
+        "fr": "Ton d'urgence ou de pression",
+        "en": "Urgent or pressuring tone"
+      },
+      "mots": {
+        "fr": [
+          "urgent",
+          "urgence",
+          "immédiatement",
+          "immediatement",
+          "sans délai",
+          "sans delai",
+          "dernier avis",
+          "dernière chance",
+          "derniere chance",
+          "avis final",
+          "rappel final",
+          "24 heures",
+          "48 heures",
+          "24h",
+          "48h",
+          "aujourd'hui seulement",
+          "expire aujourd'hui",
+          "expire bientôt",
+          "expirera",
+          "dès maintenant",
+          "dans les plus brefs délais",
+          "action requise",
+          "réponse requise",
+          "agissez maintenant",
+          "ne tardez pas",
+          "compte suspendu",
+          "compte bloqué",
+          "compte bloque",
+          "compte désactivé",
+          "accès restreint",
+          "accès limité",
+          "sera supprimé",
+          "sera fermé",
+          "sera désactivé"
+        ],
+        "en": [
+          "act now",
+          "final notice",
+          "last chance",
+          "suspended",
+          "immediately",
+          "action required",
+          "expires today",
+          "account locked"
+        ]
+      }
+    },
+    "argent": {
+      "points": 20,
+      "raison": {
+        "fr": "Mention d'argent ou de paiement inhabituel",
+        "en": "Unusual mention of money or payment"
+      },
+      "mots": {
+        "fr": [
+          "virement",
+          "virement interac",
+          "transfert",
+          "carte cadeau",
+          "carte-cadeau",
+          "cartes cadeaux",
+          "bitcoin",
+          "crypto",
+          "cryptomonnaie",
+          "usdt",
+          "western union",
+          "moneygram",
+          "remboursement",
+          "remboursé",
+          "trop-perçu",
+          "crédit d'impôt",
+          "prime",
+          "héritage",
+          "heritage",
+          "frais de livraison",
+          "frais de douane",
+          "frais de dédouanement",
+          "frais de traitement",
+          "petits frais",
+          "payez",
+          "payer maintenant",
+          "réglez",
+          "solde impayé",
+          "facture impayée",
+          "paiement en attente",
+          "paiement refusé",
+          "dépôt",
+          "investissement",
+          "rendement garanti",
+          "argent facile"
+        ],
+        "en": [
+          "gift card",
+          "refund",
+          "wire transfer",
+          "payment pending",
+          "unpaid"
+        ]
+      }
+    },
+    "gain": {
+      "points": 25,
+      "raison": {
+        "fr": "Promesse de gain ou de cadeau trop belle pour être vraie",
+        "en": "Promise of a prize or gift that is too good to be true"
+      },
+      "mots": {
+        "fr": [
+          "félicitations",
+          "felicitations",
+          "gagnant",
+          "gagnante",
+          "vous avez gagné",
+          "tu as gagné",
+          "vous avez été sélectionné",
+          "sélectionné au hasard",
+          "tirage",
+          "loterie",
+          "concours",
+          "prix à réclamer",
+          "réclamez",
+          "réclamer votre",
+          "cadeau gratuit",
+          "récompense",
+          "offre exclusive",
+          "100% gratuit"
+        ],
+        "en": [
+          "winner",
+          "congratulations",
+          "you have won",
+          "claim your",
+          "free gift",
+          "reward"
+        ]
+      }
+    },
+    "menace": {
+      "points": 25,
+      "raison": {
+        "fr": "Menace ou intimidation (police, poursuite, amende)",
+        "en": "Threat or intimidation (police, lawsuit, fine)"
+      },
+      "mots": {
+        "fr": [
+          "arrestation",
+          "mandat d'arrêt",
+          "mandat d'arrestation",
+          "police",
+          "gendarmerie",
+          "grc",
+          "poursuite",
+          "poursuites judiciaires",
+          "tribunal",
+          "huissier",
+          "amende",
+          "pénalité",
+          "penalite",
+          "saisie",
+          "fraude fiscale",
+          "dossier criminel",
+          "votre numéro d'assurance sociale a été",
+          "nas suspendu",
+          "déportation"
+        ],
+        "en": [
+          "arrest",
+          "warrant",
+          "lawsuit",
+          "legal action",
+          "penalty"
+        ]
+      }
+    },
+    "sextorsion": {
+      "points": 50,
+      "raison": {
+        "fr": "Chantage typique de sextorsion (webcam piratée, vidéo intime)",
+        "en": "Typical sextortion blackmail (hacked webcam, intimate video)"
+      },
+      "mots": {
+        "fr": [
+          "j'ai piraté",
+          "j'ai pirate",
+          "votre webcam",
+          "ta webcam",
+          "vidéo compromettante",
+          "vidéos compromettantes",
+          "photos intimes",
+          "à tous vos contacts",
+          "à tous tes contacts"
+        ],
+        "en": [
+          "i hacked",
+          "your webcam",
+          "compromising video",
+          "all your contacts"
+        ]
+      }
+    },
+    "action": {
+      "points": 15,
+      "raison": {
+        "fr": "Demande de cliquer, confirmer ou mettre à jour vos informations",
+        "en": "Asks you to click, confirm or update your information"
+      },
+      "mots": {
+        "fr": [
+          "cliquez ici",
+          "clique ici",
+          "cliquez sur le lien",
+          "cliquez le lien",
+          "confirmez votre",
+          "confirmer votre",
+          "vérifiez votre",
+          "vérifier votre",
+          "validez votre",
+          "valider votre",
+          "mettez à jour",
+          "mettre à jour vos",
+          "réactivez",
+          "réactiver votre",
+          "débloquer votre",
+          "connectez-vous",
+          "identifiez-vous",
+          "suivez ce lien",
+          "répondez à ce message"
+        ],
+        "en": [
+          "click here",
+          "verify your",
+          "confirm your",
+          "update your",
+          "log in to"
+        ]
+      }
+    },
+    "sensible": {
+      "points": 30,
+      "raison": {
+        "fr": "Demande d'informations sensibles",
+        "en": "Asks for sensitive information"
+      },
+      "mots": {
+        "fr": [
+          "mot de passe",
+          "nip",
+          "code de vérification",
+          "code de sécurité",
+          "code d'accès",
+          "code à usage unique",
+          "cvv",
+          "cvc",
+          "numéro d'assurance sociale",
+          "nas",
+          "numéro de carte",
+          "carte de crédit",
+          "carte de débit",
+          "date d'expiration",
+          "identifiant",
+          "identifiants",
+          "information bancaire",
+          "informations bancaires",
+          "coordonnées bancaires",
+          "numéro de compte",
+          "question de sécurité"
+        ],
+        "en": [
+          "password",
+          "verification code",
+          "security code",
+          "one-time code",
+          "one time code",
+          "ssn",
+          "social insurance number",
+          "bank details",
+          "card number"
+        ]
+      }
+    }
+  },
+  "emojis": {
+    "alerte": {
+      "points": 10,
+      "raison": {
+        "fr": "Emojis d'alerte ou d'urgence",
+        "en": "Alarm or urgency emojis"
+      },
+      "emojis": [
+        "🚨",
+        "⚠",
+        "❗",
+        "‼",
+        "⁉",
+        "⏰",
+        "⏳",
+        "⌛",
+        "🔴",
+        "🆘",
+        "📢",
+        "⛔",
+        "🚫",
+        "🔔"
+      ]
+    },
+    "argent": {
+      "points": 10,
+      "raison": {
+        "fr": "Emojis d'argent ou de cadeau",
+        "en": "Money or gift emojis"
+      },
+      "emojis": [
+        "💰",
+        "💵",
+        "💶",
+        "💷",
+        "💸",
+        "💲",
+        "🤑",
+        "🎁",
+        "🏆",
+        "🥇",
+        "💎",
+        "🪙",
+        "💳",
+        "🏦"
+      ]
+    },
+    "action": {
+      "points": 10,
+      "raison": {
+        "fr": "Emojis qui poussent à cliquer",
+        "en": "Emojis pushing you to click"
+      },
+      "emojis": [
+        "👉",
+        "👇",
+        "➡",
+        "⬇",
+        "🔗",
+        "📲",
+        "🖱",
+        "☝"
+      ]
+    }
+  },
+  "liens": {
+    "raccourcis": [
+      "bit.ly",
+      "tinyurl.com",
+      "t.co",
+      "is.gd",
+      "cutt.ly",
+      "rb.gy",
+      "ow.ly",
+      "shorturl.at",
+      "tiny.cc",
+      "s.id",
+      "rebrand.ly",
+      "goo.gl",
+      "t.ly"
+    ],
+    "extensions_suspectes": [
+      ".xyz",
+      ".top",
+      ".click",
+      ".icu",
+      ".buzz",
+      ".rest",
+      ".monster",
+      ".live",
+      ".shop",
+      ".online",
+      ".site",
+      ".info",
+      ".cfd",
+      ".sbs",
+      ".support",
+      ".link"
+    ],
+    "marques": {
+      "desjardins": [
+        "desjardins.com"
+      ],
+      "revenuquebec": [
+        "revenuquebec.ca"
+      ],
+      "postescanada": [
+        "postescanada.ca",
+        "canadapost-postescanada.ca"
+      ],
+      "canadapost": [
+        "canadapost.ca",
+        "canadapost-postescanada.ca"
+      ],
+      "hydroquebec": [
+        "hydroquebec.com"
+      ],
+      "paypal": [
+        "paypal.com"
+      ],
+      "amazon": [
+        "amazon.ca",
+        "amazon.com"
+      ],
+      "interac": [
+        "interac.ca"
+      ],
+      "netflix": [
+        "netflix.com"
+      ],
+      "rbc": [
+        "rbc.com",
+        "rbcroyalbank.com"
+      ],
+      "bmo": [
+        "bmo.com"
+      ],
+      "scotiabank": [
+        "scotiabank.com"
+      ],
+      "tdbank": [
+        "td.com",
+        "tdcanadatrust.com"
+      ],
+      "banquenationale": [
+        "bnc.ca"
+      ],
+      "nationalbank": [
+        "bnc.ca"
+      ],
+      "saaq": [
+        "saaq.gouv.qc.ca"
+      ],
+      "servicecanada": [
+        "canada.ca"
+      ],
+      "videotron": [
+        "videotron.com"
+      ],
+      "purolator": [
+        "purolator.com"
+      ],
+      "fedex": [
+        "fedex.com"
+      ],
+      "dhl": [
+        "dhl.com",
+        "dhl.ca"
+      ],
+      "apple": [
+        "apple.com"
+      ],
+      "icloud": [
+        "icloud.com",
+        "apple.com"
+      ],
+      "microsoft": [
+        "microsoft.com",
+        "live.com",
+        "office.com"
+      ],
+      "facebook": [
+        "facebook.com"
+      ],
+      "instagram": [
+        "instagram.com"
+      ]
+    }
+  },
+  "abus": {
+    "insultes": {
+      "raison": {
+        "fr": "Insultes ou langage injurieux",
+        "en": "Insults or abusive language"
+      },
+      "mots": {
+        "fr": [
+          "connard",
+          "connasse",
+          "conne",
+          "salaud",
+          "salope",
+          "pute",
+          "enculé",
+          "encule",
+          "fils de pute",
+          "fdp",
+          "ntm",
+          "nique ta mère",
+          "nique ta mere",
+          "ferme ta gueule",
+          "va te faire foutre",
+          "va chier",
+          "imbécile",
+          "imbecile",
+          "crétin",
+          "cretin",
+          "débile",
+          "abruti",
+          "abrutie",
+          "idiot",
+          "idiote",
+          "attardé",
+          "attardée",
+          "trou de cul",
+          "tête de cul",
+          "gros tas",
+          "grosse vache",
+          "sale chien",
+          "espèce d'ordure",
+          "pourriture",
+          "minable",
+          "sous-merde",
+          "sac à merde"
+        ],
+        "en": [
+          "fuck you",
+          "fuck off",
+          "asshole",
+          "bitch",
+          "bastard",
+          "moron",
+          "stupid",
+          "loser",
+          "piece of shit",
+          "son of a bitch",
+          "dumbass",
+          "jackass",
+          "whore",
+          "slut"
+        ]
+      }
+    },
+    "menaces": {
+      "raison": {
+        "fr": "Menaces ou harcèlement",
+        "en": "Threats or harassment"
+      },
+      "mots": {
+        "fr": [
+          "je vais te tuer",
+          "je vais vous tuer",
+          "je vais te retrouver",
+          "on va te retrouver",
+          "je sais où tu habites",
+          "je sais ou tu habites",
+          "je sais où tu restes",
+          "tu vas le regretter",
+          "tu vas souffrir",
+          "fais attention à toi",
+          "je vais publier tes photos",
+          "je vais tout dire",
+          "je vais te détruire",
+          "je vais ruiner ta vie",
+          "suicide-toi",
+          "tue-toi",
+          "va mourir"
+        ],
+        "en": [
+          "i will kill you",
+          "i know where you live",
+          "you will regret",
+          "kill yourself",
+          "kys"
+        ]
+      }
+    },
+    "diffamation": {
+      "raison": {
+        "fr": "Propos possiblement diffamatoires (accusation grave contre une personne)",
+        "en": "Possibly defamatory statements (serious accusation against a person)"
+      },
+      "mots": {
+        "fr": [
+          "il a volé",
+          "elle a volé",
+          "il a fraudé",
+          "elle a fraudé",
+          "il a agressé",
+          "elle a agressé",
+          "il a violé",
+          "il bat sa femme",
+          "elle bat ses enfants",
+          "il trompe sa femme",
+          "elle trompe son mari",
+          "ne faites pas confiance à",
+          "méfiez-vous de",
+          "dénoncez-le",
+          "dénoncez-la",
+          "tout le monde doit savoir",
+          "voici son adresse",
+          "voici son numéro",
+          "honte à",
+          "boycottez"
+        ],
+        "en": []
+      }
+    },
+    "propagation": {
+      "raison": {
+        "fr": "Appel à faire circuler le message (rumeur, chaîne)",
+        "en": "Asks to spread the message (rumor, chain letter)"
+      },
+      "mots": {
+        "fr": [
+          "faites tourner",
+          "faites circuler",
+          "partagez massivement",
+          "partagez au maximum",
+          "partagez avant que",
+          "partage avant que",
+          "avant que ce soit supprimé",
+          "envoie à 10",
+          "envoyez à 10",
+          "transférez à tous vos contacts"
+        ],
+        "en": [
+          "share before",
+          "spread the word",
+          "make this go viral"
+        ]
+      }
+    }
+  },
+  "accusations": {
+    "raison": {
+      "fr": "Accusation grave présentée comme un fait",
+      "en": "Serious accusation presented as fact"
+    },
+    "mots": {
+      "fr": [
+        "voleur",
+        "voleuse",
+        "escroc",
+        "arnaqueur",
+        "arnaqueuse",
+        "fraudeur",
+        "fraudeuse",
+        "menteur",
+        "menteuse",
+        "criminel",
+        "criminelle",
+        "pédophile",
+        "pedophile",
+        "pédo",
+        "pedo",
+        "violeur",
+        "agresseur",
+        "agresseuse",
+        "prédateur",
+        "predateur",
+        "dealer",
+        "trafiquant",
+        "drogué",
+        "droguée",
+        "alcoolique",
+        "corrompu",
+        "corrompue",
+        "raciste",
+        "nazi",
+        "terroriste"
+      ],
+      "en": [
+        "thief",
+        "scammer",
+        "fraud",
+        "liar",
+        "criminal",
+        "rapist",
+        "predator",
+        "abuser"
+      ]
+    }
+  },
+  "ldnoobw": {
+    "raison": {
+      "fr": "Langage vulgaire, obscène ou haineux",
+      "en": "Vulgar, obscene or hateful language"
+    },
+    "exclusions": {
+      "fr": [
+        "baiser",
+        "bander",
+        "bordel",
+        "bourré",
+        "bourrée",
+        "branler",
+        "caca",
+        "chatte",
+        "chier",
+        "con",
+        "cul",
+        "déconne",
+        "déconner",
+        "emmerdant",
+        "emmerder",
+        "folle",
+        "foutre",
+        "gerbe",
+        "gerber",
+        "gueule",
+        "jouir",
+        "merde",
+        "meuf",
+        "pédale",
+        "péter",
+        "pipi",
+        "pisser",
+        "putain",
+        "ramoner",
+        "suce",
+        "tanche",
+        "tapette",
+        "trique",
+        "turlute"
+      ],
+      "en": [
+        "anal",
+        "anus",
+        "ass",
+        "bareback",
+        "big black",
+        "blonde action",
+        "brunette action",
+        "bullshit",
+        "butt",
+        "clitoris",
+        "cock",
+        "coon",
+        "coons",
+        "cum",
+        "domination",
+        "ejaculation",
+        "erotic",
+        "erotism",
+        "escort",
+        "eunuch",
+        "fecal",
+        "fuck",
+        "fuckin",
+        "fucking",
+        "genitals",
+        "girl on",
+        "god damn",
+        "hard core",
+        "hardcore",
+        "homoerotic",
+        "hot chick",
+        "huge fat",
+        "incest",
+        "intercourse",
+        "jelly donut",
+        "lolita",
+        "lovemaking",
+        "mong",
+        "nipple",
+        "nipples",
+        "nude",
+        "nudity",
+        "panties",
+        "panty",
+        "penis",
+        "pleasure chest",
+        "poof",
+        "rectum",
+        "sadism",
+        "santorum",
+        "scat",
+        "scissoring",
+        "semen",
+        "sex",
+        "sexual",
+        "sexuality",
+        "sexually",
+        "sexy",
+        "shit",
+        "shitty",
+        "shrimping",
+        "skeet",
+        "snatch",
+        "snowballing",
+        "suck",
+        "sucks",
+        "tainted love",
+        "taste my",
+        "tied up",
+        "tight white",
+        "tongue in a",
+        "twinkie",
+        "vagina",
+        "vulva",
+        "xx"
+      ]
+    }
+  }
+}

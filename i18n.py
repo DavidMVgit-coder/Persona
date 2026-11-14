@@ -1,5 +1,8 @@
 """Textes renvoyés par l'API, en français et en anglais.
 
+Les textes des catégories de mots (urgence, insultes…) sont dans data/dictionnaire.json,
+avec les mots eux-mêmes. Ici, il ne reste que les textes liés au code.
+
 La détection, elle, ne dépend pas de la langue choisie : les mots-clés français ET anglais
 sont toujours cherchés. La langue ne change que la façon dont les raisons sont affichées.
 """
@@ -9,22 +12,10 @@ DEFAUT = "fr"
 
 TEXTES = {
     "fr": {
-        # catégories de mots-clés (rules.py)
-        "cat.urgence": "Ton d'urgence ou de pression",
-        "cat.argent": "Mention d'argent ou de paiement inhabituel",
-        "cat.gain": "Promesse de gain ou de cadeau trop belle pour être vraie",
-        "cat.menace": "Menace ou intimidation (police, poursuite, amende)",
-        "cat.sextorsion": "Chantage typique de sextorsion (webcam piratée, vidéo intime)",
-        "cat.action": "Demande de cliquer, confirmer ou mettre à jour vos informations",
-        "sensible": "Demande d'informations sensibles",
-        "sensible.mot": "informations sensibles",
         "camoufle": "Mots camouflés pour échapper aux filtres",
         "invisibles": "Caractères invisibles cachés dans le texte",
         "alphabets": "Mot qui mélange des alphabets pour imiter des lettres latines",
         # emojis
-        "emo.alerte": "Emojis d'alerte ou d'urgence",
-        "emo.argent": "Emojis d'argent ou de cadeau",
-        "emo.action": "Emojis qui poussent à cliquer",
         "emo.beaucoup": "Beaucoup d'emojis accrocheurs ({n})",
         # liens et courriels
         "url.ip": "Lien vers une adresse IP",
@@ -49,33 +40,15 @@ TEXTES = {
         "tel.indicatif": "Indicatif {indicatif} souvent utilisé dans des arnaques",
         "tel.voip": "Ligne VoIP (facile à usurper)",
         "tel.surtaxe": "Numéro surtaxé",
-        # contenu offensant (abus.py)
-        "abus.insultes": "Insultes ou langage injurieux",
-        "abus.vulgaire": "Langage vulgaire, obscène ou haineux",
-        "abus.menaces": "Menaces ou harcèlement",
-        "abus.diffamation": "Propos possiblement diffamatoires (accusation grave contre une personne)",
-        "abus.propagation": "Appel à faire circuler le message (rumeur, chaîne)",
-        "abus.accusation": "Accusation grave présentée comme un fait",
         # erreurs API
         "err.cle": "Clé API invalide",
         "err.champs": "Champs 'type' et 'contenu' requis",
         "err.champs_label": "Champs 'type', 'contenu' et 'label' (0 ou 1) requis",
     },
     "en": {
-        "cat.urgence": "Urgent or pressuring tone",
-        "cat.argent": "Unusual mention of money or payment",
-        "cat.gain": "Promise of a prize or gift that is too good to be true",
-        "cat.menace": "Threat or intimidation (police, lawsuit, fine)",
-        "cat.sextorsion": "Typical sextortion blackmail (hacked webcam, intimate video)",
-        "cat.action": "Asks you to click, confirm or update your information",
-        "sensible": "Asks for sensitive information",
-        "sensible.mot": "sensitive information",
         "camoufle": "Words disguised to get past filters",
         "invisibles": "Invisible characters hidden in the text",
         "alphabets": "Word mixing alphabets to imitate Latin letters",
-        "emo.alerte": "Alarm or urgency emojis",
-        "emo.argent": "Money or gift emojis",
-        "emo.action": "Emojis pushing you to click",
         "emo.beaucoup": "Lots of attention-grabbing emojis ({n})",
         "url.ip": "Link to an IP address",
         "url.raccourci": "Shortened link that hides the destination",
@@ -98,12 +71,6 @@ TEXTES = {
         "tel.indicatif": "Area code {indicatif} often used in scams",
         "tel.voip": "VoIP line (easy to spoof)",
         "tel.surtaxe": "Premium-rate number",
-        "abus.insultes": "Insults or abusive language",
-        "abus.vulgaire": "Vulgar, obscene or hateful language",
-        "abus.menaces": "Threats or harassment",
-        "abus.diffamation": "Possibly defamatory statements (serious accusation against a person)",
-        "abus.propagation": "Asks to spread the message (rumor, chain letter)",
-        "abus.accusation": "Serious accusation presented as fact",
         "err.cle": "Invalid API key",
         "err.champs": "Fields 'type' and 'contenu' are required",
         "err.champs_label": "Fields 'type', 'contenu' and 'label' (0 or 1) are required",
@@ -125,6 +92,11 @@ def citer(langue: str, mots, n: int = 3) -> str:
     return ", ".join(f"{gauche}{m}{droite}" for m in list(mots)[:n])
 
 
-def avec_exemples(langue: str, cle: str, mots, n: int = 3) -> str:
+def expliquer(langue: str, intro: str, mots, n: int = 3) -> str:
+    """« Intro : « a », « b » » en français ; 'Intro: "a", "b"' en anglais."""
     separateur = " : " if langue_valide(langue) == "fr" else ": "
-    return t(langue, cle) + separateur + citer(langue, mots, n)
+    return intro + separateur + citer(langue, mots, n)
+
+
+def avec_exemples(langue: str, cle: str, mots, n: int = 3) -> str:
+    return expliquer(langue, t(langue, cle), mots, n)

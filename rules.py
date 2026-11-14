@@ -1,73 +1,21 @@
 """Heuristiques : signaux explicites de scam dans un texte (SMS, courriel)."""
 import re
+from dataclasses import dataclass
 from urllib.parse import urlparse
 
-from i18n import DEFAUT, TEXTES, avec_exemples, t
 import safebrowsing
+from dictionnaire import DICO, Raison
+from i18n import DEFAUT, TEXTES, avec_exemples, expliquer, t
 from normalisation import caracteres_trompeurs, normaliser, normaliser_simple
 
-# Mots-clés par catégorie : (clé du texte affiché dans i18n.py, points, liste de mots/expressions).
-# La recherche se fait sur des mots entiers ("prime" ne déclenche pas sur "imprimer").
-CATEGORIES = {
-    "urgence": ("cat.urgence", 20, [
-        "urgent", "urgence", "immédiatement", "immediatement", "sans délai", "sans delai",
-        "dernier avis", "dernière chance", "derniere chance", "avis final", "rappel final",
-        "24 heures", "48 heures", "24h", "48h", "aujourd'hui seulement", "expire aujourd'hui",
-        "expire bientôt", "expirera", "dès maintenant", "dans les plus brefs délais",
-        "action requise", "réponse requise", "agissez maintenant", "ne tardez pas",
-        "compte suspendu", "compte bloqué", "compte bloque", "compte désactivé",
-        "accès restreint", "accès limité", "sera supprimé", "sera fermé", "sera désactivé",
-        "act now", "final notice", "last chance", "suspended", "immediately",
-        "action required", "expires today", "account locked",
-    ]),
-    "argent": ("cat.argent", 20, [
-        "virement", "virement interac", "transfert", "carte cadeau", "carte-cadeau",
-        "cartes cadeaux", "bitcoin", "crypto", "cryptomonnaie", "usdt", "western union",
-        "moneygram", "remboursement", "remboursé", "trop-perçu", "crédit d'impôt",
-        "prime", "héritage", "heritage", "frais de livraison", "frais de douane",
-        "frais de dédouanement", "frais de traitement", "petits frais", "payez", "payer maintenant",
-        "réglez", "solde impayé", "facture impayée", "paiement en attente", "paiement refusé",
-        "dépôt", "investissement", "rendement garanti", "argent facile",
-        "gift card", "refund", "wire transfer", "payment pending", "unpaid",
-    ]),
-    "gain": ("cat.gain", 25, [
-        "félicitations", "felicitations", "gagnant", "gagnante", "vous avez gagné",
-        "tu as gagné", "vous avez été sélectionné", "sélectionné au hasard", "tirage",
-        "loterie", "concours", "prix à réclamer", "réclamez", "réclamer votre",
-        "cadeau gratuit", "récompense", "offre exclusive", "100% gratuit",
-        "winner", "congratulations", "you have won", "claim your", "free gift", "reward",
-    ]),
-    "menace": ("cat.menace", 25, [
-        "arrestation", "mandat d'arrêt", "mandat d'arrestation", "police", "gendarmerie",
-        "grc", "poursuite", "poursuites judiciaires", "tribunal", "huissier", "amende",
-        "pénalité", "penalite", "saisie", "fraude fiscale", "dossier criminel",
-        "votre numéro d'assurance sociale a été", "nas suspendu", "déportation",
-        "arrest", "warrant", "lawsuit", "legal action", "penalty",
-    ]),
-    "sextorsion": ("cat.sextorsion", 50, [
-        "j'ai piraté", "j'ai pirate", "votre webcam", "ta webcam", "vidéo compromettante",
-        "vidéos compromettantes", "photos intimes", "à tous vos contacts", "à tous tes contacts",
-        "i hacked", "your webcam", "compromising video", "all your contacts",
-    ]),
-    "action": ("cat.action", 15, [
-        "cliquez ici", "clique ici", "cliquez sur le lien", "cliquez le lien",
-        "confirmez votre", "confirmer votre", "vérifiez votre", "vérifier votre",
-        "validez votre", "valider votre", "mettez à jour", "mettre à jour vos",
-        "réactivez", "réactiver votre", "débloquer votre", "connectez-vous",
-        "identifiez-vous", "suivez ce lien", "répondez à ce message",
-        "click here", "verify your", "confirm your", "update your", "log in to",
-    ]),
-}
-SENSIBLE = re.compile(
-    r"mot de passe|\bnip\b|code de v[ée]rification|code de s[ée]curit[ée]|"
-    r"code d.acc[èe]s|code (?:à|a) usage unique|\bcvv\b|\bcvc\b|"
-    r"num[ée]ro d.assurance sociale|\bnas\b|num[ée]ro de carte|carte de cr[ée]dit|"
-    r"carte de d[ée]bit|date d.expiration|identifiants?|informations? bancaires?|"
-    r"coordonn[ée]es bancaires|num[ée]ro de compte|question de s[ée]curit[ée]|"
-    r"password|verification code|security code|one.time code|\bssn\b|"
-    r"social insurance number|bank details|card number",
-    re.I,
-)
+URL_RE = re.compile(r"https?://[^\s<>\"']+", re.I)
+PONCTUATION_FIN = ".,;:!?)]}»"
+IP_RE = re.compile(r"^\d{1,3}(\.\d{1,3}){3}$")
+
+# Les mots, emojis et domaines viennent de data/dictionnaire.json
+RACCOURCIS = DICO.raccourcis
+TLD_SUSPECTS = DICO.extensions_suspectes
+MARQUES = DICO.marques            # marque (sans tirets ni espaces) -> domaines officiels
 
 
 def _motif(formes):
@@ -75,59 +23,24 @@ def _motif(formes):
     return re.compile(rf"(?<!\w)(?:{alt})(?!\w)")
 
 
-# Chaque mot-clé est comparé au texte normalisé (camouflage défait, sans accents).
-# On garde aussi sa forme « simple » pour savoir s'il était écrit normalement ou camouflé.
-MOTIFS = {}
-for _cle, (_raison, _pts, _mots) in CATEGORIES.items():
-    _forme = {normaliser(m): m for m in reversed(_mots)}          # forme normalisée -> mot affiché
-    _simple = {normaliser(m): _motif([normaliser_simple(m)]) for m in _mots}
-    MOTIFS[_cle] = (_raison, _pts, _motif(_forme), _forme, _simple)
+@dataclass(frozen=True)
+class Motif:
+    """Une catégorie du dictionnaire, prête à chercher dans un texte normalisé."""
+    raison: Raison
+    points: int
+    motif: re.Pattern       # toutes les formes normalisées (camouflage défait, sans accents)
+    forme: dict             # forme normalisée -> mot tel qu'écrit dans le dictionnaire
+    simple: dict            # forme normalisée -> motif du mot écrit normalement (pour repérer le camouflage)
 
-# Emojis typiques des scams. Un seul emoji ne pèse pas lourd ; c'est l'accumulation qui compte.
-EMOJIS = {
-    "alerte": ("emo.alerte", 10, set("🚨⚠❗‼⁉⏰⏳⌛🔴🆘📢⛔🚫🔔")),
-    "argent": ("emo.argent", 10, set("💰💵💶💷💸💲🤑🎁🏆🥇💎🪙💳🏦")),
-    "action": ("emo.action", 10, set("👉👇➡⬇🔗📲🖱☝")),
-}
-EMOJIS_TOUS = set().union(*(e for _, _, e in EMOJIS.values()))
 
-URL_RE = re.compile(r"https?://[^\s<>\"']+", re.I)
-PONCTUATION_FIN = ".,;:!?)]}»"
-RACCOURCIS = ("bit.ly", "tinyurl.com", "t.co", "is.gd", "cutt.ly", "rb.gy", "ow.ly",
-              "shorturl.at", "tiny.cc", "s.id", "rebrand.ly", "goo.gl", "t.ly")
-TLD_SUSPECTS = (".xyz", ".top", ".click", ".icu", ".buzz", ".rest", ".monster", ".live",
-                ".shop", ".online", ".site", ".info", ".cfd", ".sbs", ".support", ".link")
-IP_RE = re.compile(r"^\d{1,3}(\.\d{1,3}){3}$")
+def _preparer(categorie) -> Motif:
+    forme = {normaliser(m): m for m in reversed(categorie.mots)}     # le premier mot du fichier gagne
+    simple = {normaliser(m): _motif([normaliser_simple(m)]) for m in categorie.mots}
+    return Motif(categorie.raison, categorie.points, _motif(forme), forme, simple)
 
-# marque (sans tirets ni espaces) -> domaines officiels
-MARQUES = {
-    "desjardins": ("desjardins.com",),
-    "revenuquebec": ("revenuquebec.ca",),
-    "postescanada": ("postescanada.ca", "canadapost-postescanada.ca"),
-    "canadapost": ("canadapost.ca", "canadapost-postescanada.ca"),
-    "hydroquebec": ("hydroquebec.com",),
-    "paypal": ("paypal.com",),
-    "amazon": ("amazon.ca", "amazon.com"),
-    "interac": ("interac.ca",),
-    "netflix": ("netflix.com",),
-    "rbc": ("rbc.com", "rbcroyalbank.com"),
-    "bmo": ("bmo.com",),
-    "scotiabank": ("scotiabank.com",),
-    "tdbank": ("td.com", "tdcanadatrust.com"),
-    "banquenationale": ("bnc.ca",),
-    "nationalbank": ("bnc.ca",),
-    "saaq": ("saaq.gouv.qc.ca",),
-    "servicecanada": ("canada.ca",),
-    "videotron": ("videotron.com",),
-    "purolator": ("purolator.com",),
-    "fedex": ("fedex.com",),
-    "dhl": ("dhl.com", "dhl.ca"),
-    "apple": ("apple.com",),
-    "icloud": ("icloud.com", "apple.com"),
-    "microsoft": ("microsoft.com", "live.com", "office.com"),
-    "facebook": ("facebook.com",),
-    "instagram": ("instagram.com",),
-}
+
+MOTIFS = [_preparer(c) for c in DICO.scam]
+EMOJIS_TOUS = frozenset().union(*(c.emojis for c in DICO.emojis))
 
 
 def _hote_trompeur(hote: str) -> bool:
@@ -206,18 +119,13 @@ def analyser_regles(texte: str, langue: str = DEFAUT):
     texte_simple = normaliser_simple(texte)
     camoufles = []
 
-    for raison, pts, motif, forme, simple in MOTIFS.values():
-        trouves = list(dict.fromkeys(m.group(0) for m in motif.finditer(texte_norm)))
+    for cat in MOTIFS:
+        trouves = list(dict.fromkeys(m.group(0) for m in cat.motif.finditer(texte_norm)))
         if not trouves:
             continue
-        mots = [forme[f] for f in trouves]
-        camoufles += [forme[f] for f in trouves if not simple[f].search(texte_simple)]
-        raisons.append(avec_exemples(langue, raison, mots)); score += pts
-
-    if SENSIBLE.search(texte_norm):
-        raisons.append(t(langue, "sensible")); score += 30
-        if not SENSIBLE.search(texte_simple):
-            camoufles.append(t(langue, "sensible.mot"))
+        mots = [cat.forme[f] for f in trouves]
+        camoufles += [cat.forme[f] for f in trouves if not cat.simple[f].search(texte_simple)]
+        raisons.append(expliquer(langue, cat.raison.texte(langue), mots)); score += cat.points
 
     if camoufles:
         raisons.append(avec_exemples(langue, "camoufle", dict.fromkeys(camoufles))); score += 25
@@ -225,11 +133,11 @@ def analyser_regles(texte: str, langue: str = DEFAUT):
         raisons.append(r); score += 25
 
     emojis = [c for c in texte.replace("\ufe0f", "") if c in EMOJIS_TOUS]
-    for raison, pts, ensemble in EMOJIS.values():
-        vus = list(dict.fromkeys(e for e in emojis if e in ensemble))
+    for cat in DICO.emojis:
+        vus = list(dict.fromkeys(e for e in emojis if e in cat.emojis))
         if vus:
             sep = " : " if langue == "fr" else ": "
-            raisons.append(f"{t(langue, raison)}{sep}{' '.join(vus[:5])}"); score += pts
+            raisons.append(f"{cat.raison.texte(langue)}{sep}{' '.join(vus[:5])}"); score += cat.points
     if len(emojis) >= 5:
         raisons.append(t(langue, "emo.beaucoup", n=len(emojis))); score += 10
 
