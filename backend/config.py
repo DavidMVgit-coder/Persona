@@ -20,6 +20,7 @@ def _charger_env(chemin: Path) -> None:
 _charger_env(BASE_DIR / ".env")
 MODEL_PATH = BASE_DIR / "model.joblib"
 DATA_PATH = BASE_DIR / "data" / "data.csv"
+EXAMEN_PATH = BASE_DIR / "data" / "examen.csv"    # jamais utilisé pour entraîner : sert à noter l'IA
 FEEDBACK_PATH = BASE_DIR / "data" / "feedback.csv"
 BLACKLIST_PATH = BASE_DIR / "data" / "blacklist.csv"
 DICTIONNAIRE_PATH = BASE_DIR / "data" / "dictionnaire.json"

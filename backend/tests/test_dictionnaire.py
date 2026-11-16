@@ -48,6 +48,9 @@ def test_emoji_avec_selecteur_de_variante():
     (lambda d: d["abus"]["insultes"]["raison"].pop("fr"), "abus.insultes.raison.fr"),
     (lambda d: d["emojis"]["alerte"].update(emojis=["🚨🚨"]), "emojis.alerte.emojis"),
     (lambda d: d["liens"].pop("marques"), "liens.marques"),
+    (lambda d: d["scam"]["urgence"].update(resume="pas un objet"), "scam.urgence.resume"),
+    (lambda d: d["types"]["colis"].pop("conseil"), "types.colis.conseil"),
+    (lambda d: d["types"]["colis"]["nom"].pop("fr"), "types.colis.nom.fr"),
 ])
 def test_erreurs_claires(modif, message):
     d = copy.deepcopy(BRUT)
@@ -61,3 +64,10 @@ def test_json_invalide_indique_la_ligne(tmp_path):
     f.write_text('{\n  "scam": {\n    "urgence": [1, 2,]\n  }\n}', encoding="utf-8")
     with pytest.raises(ErreurDictionnaire, match="ligne 3"):
         charger(f)
+
+
+def test_types_optionnels():
+    """Sans section « types », le dictionnaire reste valide (l'IA ne nomme juste pas le type d'arnaque)."""
+    d = copy.deepcopy(BRUT)
+    del d["types"]
+    assert analyser_dictionnaire(d).types == []

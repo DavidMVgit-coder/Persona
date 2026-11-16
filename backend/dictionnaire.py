@@ -29,6 +29,16 @@ class CategorieMots:
     raison: Raison
     mots: list          # toutes langues confondues, dans l'ordre du fichier
     points: int = 0
+    resume: Raison | None = None    # bout de phrase pour le résumé de l'IA (optionnel)
+
+
+@dataclass(frozen=True)
+class TypeArnaque:
+    """Une sorte d'arnaque (colis, banque, faux proche…) avec le conseil à donner."""
+    nom: str
+    titre: Raison       # « arnaque au colis » (s'insère dans une phrase)
+    conseil: Raison
+    mots: list
 
 
 @dataclass(frozen=True)
@@ -50,6 +60,7 @@ class Dictionnaire:
     accusations: CategorieMots
     ldnoobw_raison: Raison
     ldnoobw_exclusions: frozenset
+    types: list = ()
 
 
 # ---------- vérifications ----------
@@ -103,6 +114,17 @@ def _categorie_mots(nom: str, bloc, chemin: str, avec_points: bool) -> Categorie
         raison=_raison(bloc.get("raison"), f"{chemin}.raison"),
         mots=_mots_par_langue(bloc.get("mots"), f"{chemin}.mots"),
         points=_points(bloc.get("points"), f"{chemin}.points") if avec_points else 0,
+        resume=_raison(bloc["resume"], f"{chemin}.resume") if "resume" in bloc else None,
+    )
+
+
+def _type(nom: str, bloc, chemin: str) -> TypeArnaque:
+    bloc = _objet(bloc, chemin)
+    return TypeArnaque(
+        nom=nom,
+        titre=_raison(bloc.get("nom"), f"{chemin}.nom"),
+        conseil=_raison(bloc.get("conseil"), f"{chemin}.conseil"),
+        mots=_mots_par_langue(bloc.get("mots"), f"{chemin}.mots"),
     )
 
 
@@ -137,6 +159,8 @@ def analyser_dictionnaire(donnees) -> Dictionnaire:
         ldnoobw_exclusions=frozenset(
             m.lower() for langue, liste in exclusions.items()
             for m in _liste_textes(liste, f"ldnoobw.exclusions.{langue}")),
+        # « types » est optionnel : sans lui, l'IA ne nomme simplement pas le type d'arnaque
+        types=[_type(n, b, f"types.{n}") for n, b in _objet(racine.get("types", {}), "types").items()],
     )
 
 

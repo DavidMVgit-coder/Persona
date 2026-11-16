@@ -8,6 +8,35 @@ interface ResultatAnalyse {
   niveau: Niveau;
   raisons: string[];
   alertes?: string[];
+  ia?: AvisIA;
+}
+
+/** Ce que l'« IA » maison renvoie (voir backend/ia.py). */
+interface AvisIA {
+  verdict: "scam" | "doute" | "legitime";
+  confiance: number;
+  resume: string;
+  type: { nom: string; conseil: string } | null;
+  conseil: string | null;
+  indices: string[];
+  indices_vers_scam: boolean;
+  similaire: { texte: string; similarite: number } | null;
+}
+
+const attendre = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** Petite mise en scène « l'IA réfléchit » pendant l'analyse. */
+async function animationIA(): Promise<void> {
+  zoneResultat.innerHTML = "";
+  const bloc = document.createElement("div");
+  bloc.className = "ia-reflexion";
+  zoneResultat.append(bloc);
+  for (const cle of ["ia.etape1", "ia.etape2", "ia.etape3"] as const) {
+    const p = document.createElement("p");
+    p.textContent = tr(cle);
+    bloc.append(p);
+    await attendre(350);
+  }
 }
 
 const NUMERO_EXEMPLE = "+1 809 555 0142";
@@ -103,6 +132,59 @@ btnAnalyser.addEventListener("click", () => {
   void analyser(typeCourant(), contenu);
 });
 
+// ---------- Analyse IA ----------
+
+function paragraphe(classe: string, texte: string): HTMLParagraphElement {
+  const p = document.createElement("p");
+  p.className = classe;
+  p.textContent = texte; // textContent : jamais de HTML injecté
+  return p;
+}
+
+/** Bloc « 🤖 Analyse IA » : verdict, type d'arnaque, résumé, indices, scam connu le plus proche, conseil. */
+function blocIA(ia: AvisIA): HTMLElement {
+  const bloc = document.createElement("div");
+  bloc.className = "ia";
+  bloc.dataset.verdict = ia.verdict;
+
+  const h = document.createElement("h2");
+  h.textContent = tr("ia.titre");
+  const confiance = tr(ia.verdict === "doute" ? "ia.probabilite" : "ia.confiance", { n: ia.confiance });
+  bloc.append(h, paragraphe("ia-avis", `${tr(`ia.verdict.${ia.verdict}`)} · ${confiance}`));
+
+  if (ia.type) {
+    const p = paragraphe("ia-type", tr("ia.type") + " ");
+    const badge = document.createElement("span");
+    badge.className = "badge";
+    badge.textContent = ia.type.nom;
+    p.append(badge);
+    bloc.append(p);
+  }
+  bloc.append(paragraphe("ia-resume", ia.resume));
+
+  if (ia.indices.length) {
+    const p = paragraphe("ia-indices", tr(ia.indices_vers_scam ? "ia.indices.suspects" : "ia.indices.rassurants") + " ");
+    ia.indices.forEach((mot) => {
+      const puce = document.createElement("span");
+      puce.className = "puce";
+      puce.textContent = mot;
+      p.append(puce);
+    });
+    bloc.append(p);
+  }
+
+  if (ia.similaire) {
+    const p = paragraphe("ia-similaire", tr("ia.similaire", { n: ia.similaire.similarite }));
+    const citation = document.createElement("q");
+    citation.textContent = ia.similaire.texte;
+    p.append(document.createElement("br"), citation);
+    bloc.append(p);
+  }
+
+  if (ia.conseil) bloc.append(paragraphe("ia-conseil", `${tr("ia.conseil")} ${ia.conseil}`));
+  return bloc;
+}
+
 // ---------- Analyse ----------
 
 async function analyser(type: TypeContenu, contenu: string): Promise<void> {
@@ -110,11 +192,11 @@ async function analyser(type: TypeContenu, contenu: string): Promise<void> {
   btnAnalyser.textContent = tr("btn.encours");
 
   try {
-    const rep = await fetch("/analyser", {
+    const [rep] = await Promise.all([fetch("/analyser", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ type, contenu, langue }),
-    });
+    }), animationIA()]);
     if (!rep.ok) throw new Error("HTTP " + rep.status);
     derniereAnalyse = { type, contenu };
     afficherResultat((await rep.json()) as ResultatAnalyse, type, contenu);
@@ -174,6 +256,8 @@ function afficherResultat(r: ResultatAnalyse, type: TypeContenu, contenu: string
     p.textContent = tr("aucune");
     carte.append(p);
   }
+
+  if (r.ia) carte.append(blocIA(r.ia));
 
   // Contenu offensant : affiché à part, ne compte pas dans le score de scam
   if (r.alertes && r.alertes.length) {

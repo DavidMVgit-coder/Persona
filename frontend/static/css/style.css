@@ -321,3 +321,49 @@ button {
   .row button { flex: 1; }
   .carte { padding: 1.2rem 1rem 1rem; }
 }
+
+/* « Analyse IA » */
+.ia {
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  padding: .8rem 1rem .4rem;
+  margin: 0 0 1rem;
+}
+.ia h2 { color: var(--accent); }
+.ia-avis { font-weight: 700; margin: 0 0 .5rem; }
+.ia[data-verdict="scam"] .ia-avis { color: var(--high); }
+.ia[data-verdict="doute"] .ia-avis { color: var(--mid); }
+.ia[data-verdict="legitime"] .ia-avis { color: var(--low); }
+.ia-type { margin: 0 0 .5rem; color: var(--muted); }
+.badge {
+  display: inline-block;
+  padding: .1rem .6rem;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: .9rem;
+}
+@media (prefers-color-scheme: dark) { .badge { color: #0c1420; } }
+.ia-resume { margin: 0 0 .6rem; }
+.ia-similaire { margin: 0 0 .6rem; color: var(--muted); }
+.ia-similaire q { font-style: italic; color: var(--ink); }
+.ia-conseil {
+  margin: 0 0 .6rem;
+  padding: .55rem .75rem;
+  border-radius: 8px;
+  background: var(--bg);
+}
+.ia-indices { margin: 0 0 .5rem; color: var(--muted); }
+.puce {
+  display: inline-block;
+  margin: .2rem .3rem 0 0;
+  padding: .1rem .55rem;
+  border-radius: 999px;
+  background: var(--line);
+  color: var(--ink);
+  font-size: .9rem;
+}
+.ia-reflexion p { margin: .3rem 0; color: var(--muted); animation: apparaitre .3s ease both; }
+@keyframes apparaitre { from { opacity: 0; transform: translateY(4px); } }
+@media (prefers-reduced-motion: reduce) { .ia-reflexion p { animation: none; } }

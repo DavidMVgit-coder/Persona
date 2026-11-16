@@ -81,13 +81,21 @@ def motif_mots(formes) -> re.Pattern:
     return re.compile(rf"(?<!\w)(?:{alt})(?!\w)")
 
 
-def caracteres_trompeurs(texte: str, langue: str = DEFAUT) -> list[str]:
-    """Signaux qui ne s'expliquent presque jamais dans un message honnête."""
-    raisons = []
+def trompeurs(texte: str) -> list[tuple[str, list[str]]]:
+    """Signaux qui ne s'expliquent presque jamais dans un message honnête : [(code, exemples)].
+
+    Codes : « invisibles » (caractères invisibles), « alphabets » (mot qui mélange des alphabets).
+    """
+    trouves = []
     if INVISIBLES_RE.search(texte):
-        raisons.append(t(langue, "invisibles"))
+        trouves.append(("invisibles", []))
     for mot in re.findall(r"\w+", texte.lower()):
         if ALPHABETS_RE.search(mot) and NON_LATIN_RE.search(mot):
-            raisons.append(avec_exemples(langue, "alphabets", [mot]))
+            trouves.append(("alphabets", [mot]))
             break
-    return raisons
+    return trouves
+
+
+def caracteres_trompeurs(texte: str, langue: str = DEFAUT) -> list[str]:
+    """Mêmes signaux que trompeurs(), sous forme de phrases prêtes à afficher."""
+    return [avec_exemples(langue, code, mots) if mots else t(langue, code) for code, mots in trompeurs(texte)]

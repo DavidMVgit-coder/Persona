@@ -49,6 +49,7 @@
   <p class="limite" data-i18n="limite">Le résultat est une estimation, pas une certitude. En cas de doute, ne clique sur aucun lien et contacte l’organisme directement avec le numéro officiel.</p>
 </main>
 
-<script type="module" src="{{ url_for('static', filename='js/app.js') }}"></script>
+<!-- app.ts traduit en JavaScript à la volée par Flask (backend/typescript_web.py) -->
+<script type="module" src="{{ url_for('javascript', nom='app') }}"></script>
 </body>
 </html>

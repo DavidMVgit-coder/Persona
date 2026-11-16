@@ -13,6 +13,26 @@ DEFAUT = "fr"
 TEXTES = {
     "fr": {
         "camoufle": "Mots camouflés pour échapper aux filtres",
+        # bouts de phrase du résumé de l'IA (« il met de la pression, … et cache la vraie adresse de son lien »)
+        "resume.camoufle": "camoufle des mots pour passer les filtres",
+        "resume.trompeurs": "cache des caractères trompeurs",
+        "resume.emo.beaucoup": "abuse des emojis accrocheurs",
+        "resume.url.google": "contient un lien signalé comme dangereux par Google",
+        "resume.url.marque": "contient un lien qui imite {marque}",
+        "resume.url.trompeur": "contient un lien trompeur",
+        "resume.url.raccourci": "cache la vraie adresse de son lien",
+        "resume.url.tld": "mène vers un site douteux",
+        "resume.entete.marque": "se fait passer pour {marque}",
+        # résumé de l'IA
+        "ia.une_arnaque": "une arnaque",
+        "ia.resume.scam": "Ce message ressemble à {quoi} : il {details}.",
+        "ia.resume.scam_seul": "Ce message ressemble à {quoi} : sa formulation rappelle des arnaques que je connais.",
+        "ia.resume.doute": "J'hésite sur ce message : il {details}. Vérifie auprès de l'expéditeur par un autre moyen avant d'agir.",
+        "ia.resume.doute_seul": "J'hésite sur ce message : certaines tournures ressemblent à des arnaques, sans signal clair. Vérifie auprès de l'expéditeur avant d'agir.",
+        "ia.resume.legitime": "Ce message semble légitime : je n'y vois aucun signal typique d'arnaque.",
+        "ia.resume.legitime_signaux": "Ce message semble légitime. Il {details}, mais l'ensemble ressemble à un message normal.",
+        "ia.et": "et",
+        "conseil.general": "Ne clique sur aucun lien et contacte l'organisme ou la personne par un moyen que tu connais déjà (numéro officiel, application).",
         "invisibles": "Caractères invisibles cachés dans le texte",
         "alphabets": "Mot qui mélange des alphabets pour imiter des lettres latines",
         # emojis
@@ -47,6 +67,24 @@ TEXTES = {
     },
     "en": {
         "camoufle": "Words disguised to get past filters",
+        "resume.camoufle": "disguises words to get past filters",
+        "resume.trompeurs": "hides deceptive characters",
+        "resume.emo.beaucoup": "overuses attention-grabbing emojis",
+        "resume.url.google": "contains a link Google flags as dangerous",
+        "resume.url.marque": "contains a link imitating {marque}",
+        "resume.url.trompeur": "contains a deceptive link",
+        "resume.url.raccourci": "hides the real address of its link",
+        "resume.url.tld": "leads to a dubious website",
+        "resume.entete.marque": "pretends to be {marque}",
+        "ia.une_arnaque": "a scam",
+        "ia.resume.scam": "This message looks like {quoi}: it {details}.",
+        "ia.resume.scam_seul": "This message looks like {quoi}: its wording reminds me of scams I know.",
+        "ia.resume.doute": "I'm not sure about this message: it {details}. Check with the sender through another channel before acting.",
+        "ia.resume.doute_seul": "I'm not sure about this message: some phrases look like scams, but there's no clear signal. Check with the sender before acting.",
+        "ia.resume.legitime": "This message looks legitimate: I don't see any typical scam signal.",
+        "ia.resume.legitime_signaux": "This message looks legitimate. It {details}, but overall it reads like a normal message.",
+        "ia.et": "and",
+        "conseil.general": "Don't click any link, and contact the organization or person through a channel you already know (official number, app).",
         "invisibles": "Invisible characters hidden in the text",
         "alphabets": "Word mixing alphabets to imitate Latin letters",
         "emo.beaucoup": "Lots of attention-grabbing emojis ({n})",
@@ -100,6 +138,14 @@ def separateur(langue: str) -> str:
 def expliquer(langue: str, intro: str, mots, n: int = 3) -> str:
     """« Intro : « a », « b » » en français ; 'Intro: "a", "b"' en anglais."""
     return intro + separateur(langue) + citer(langue, mots, n)
+
+
+def enumerer(langue: str, elements) -> str:
+    """« a, b et c » en français ; "a, b and c" en anglais."""
+    elements = list(elements)
+    if len(elements) <= 1:
+        return "".join(elements)
+    return ", ".join(elements[:-1]) + f" {t(langue, 'ia.et')} " + elements[-1]
 
 
 def avec_exemples(langue: str, cle: str, mots, n: int = 3) -> str:

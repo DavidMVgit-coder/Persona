@@ -74,3 +74,53 @@ def test_numero_international():
 def test_numero_invalide():
     score, _ = analyser_numero("abc")
     assert score >= 40
+
+
+# ---------- nouvelles règles ----------
+
+@pytest.mark.parametrize("texte", [
+    "Ton colis a été livré, aucune action requise",
+    "No action required on your part",
+    "Ce n'est pas urgent, réponds quand tu peux",
+])
+def test_negation_annule_le_mot_cle(texte):
+    score, raisons = analyser_regles(texte)
+    assert score == 0, raisons
+
+
+def test_mot_cle_sans_negation_compte_toujours():
+    score, _ = analyser_regles("Action requise : confirmez votre compte")
+    assert score > 0
+
+
+@pytest.mark.parametrize("texte, attendu", [
+    ("Confirmez sous 24h : bit.ly/pp-verif", "raccourci"),
+    ("Rends-toi sur fizz-reactivation.com pour le réactiver", "fizz"),
+    ("Payez ici : postes-canada-suivi.xyz/p", "postes-canada-suivi.xyz"),
+])
+def test_lien_sans_http(texte, attendu):
+    _, raisons = analyser_regles(texte)
+    assert any(attendu in r.lower() for r in raisons), raisons
+
+
+@pytest.mark.parametrize("texte", [
+    "Écris à info@desjardins.com pour toute question",     # une adresse courriel n'est pas un lien
+    "M.Tremblay arrive à 15 h, etc.",                       # « M.Tremblay » n'est pas un site
+    "Voir www.desjardins.com/releve",                       # domaine officiel
+])
+def test_pas_de_faux_lien(texte):
+    score, raisons = analyser_regles(texte)
+    assert score == 0, raisons
+
+
+def test_faux_proche_et_secret():
+    score, raisons = analyser_regles("Grand-maman, c'est ton petit-fils. J'ai eu un accident, n'en parle pas à papa.")
+    assert any("proche" in r for r in raisons)
+    assert any("secret" in r for r in raisons)
+    assert score >= 40
+
+
+def test_messagerie_et_alerte():
+    _, raisons = analyser_regles("Commande suspecte sur votre compte. Écris-moi sur WhatsApp.")
+    assert any("messagerie" in r for r in raisons)
+    assert any("suspecte" in r for r in raisons)

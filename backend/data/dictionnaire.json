@@ -9,7 +9,10 @@
     "- On peut ajouter une catégorie : copier un bloc existant et changer le nom, les points, la raison et les mots.",
     "- abus.* et accusations : contenu offensant, affiché à part, ne change pas le score de scam.",
     "- accusations : noms détectés seulement après « est un / c'est une / is a… » (« X est un voleur »).",
-    "- ldnoobw.exclusions : mots des listes data/ldnoobw/ à ignorer (double sens, termes médicaux…)."
+    "- ldnoobw.exclusions : mots des listes data/ldnoobw/ à ignorer (double sens, termes médicaux…).",
+    "- scam.<catégorie>.resume : bout de phrase utilisé dans le résumé de l'IA (« il met de la pression… »).",
+    "- types : sortes d'arnaques. L'IA choisit le type dont le plus de mots apparaissent (en cas d'égalité, le premier du fichier gagne : mets les plus précis en premier).",
+    "- types.<type>.nom : avec l'article (« une arnaque au colis »), car il s'insère dans le résumé de l'IA."
   ],
   "scam": {
     "urgence": {
@@ -53,7 +56,18 @@
           "accès limité",
           "sera supprimé",
           "sera fermé",
-          "sera désactivé"
+          "sera désactivé",
+          "est suspendu",
+          "a été suspendu",
+          "sera suspendu",
+          "est bloqué",
+          "a été bloqué",
+          "sera bloqué",
+          "est désactivé",
+          "a été désactivé",
+          "est limité",
+          "a été limité",
+          "sera interrompu"
         ],
         "en": [
           "act now",
@@ -63,8 +77,17 @@
           "immediately",
           "action required",
           "expires today",
-          "account locked"
+          "account locked",
+          "has been suspended",
+          "will be suspended",
+          "has been locked",
+          "has been limited",
+          "will be closed"
         ]
+      },
+      "resume": {
+        "fr": "met de la pression",
+        "en": "puts pressure on you"
       }
     },
     "argent": {
@@ -116,8 +139,18 @@
           "refund",
           "wire transfer",
           "payment pending",
-          "unpaid"
+          "unpaid",
+          "guaranteed returns",
+          "guaranteed profit",
+          "double your money",
+          "investment opportunity",
+          "send usdt",
+          "crypto wallet"
         ]
+      },
+      "resume": {
+        "fr": "parle d'argent ou de paiement",
+        "en": "talks about money or a payment"
       }
     },
     "gain": {
@@ -155,6 +188,10 @@
           "free gift",
           "reward"
         ]
+      },
+      "resume": {
+        "fr": "promet un gain trop beau pour être vrai",
+        "en": "promises a reward that's too good to be true"
       }
     },
     "menace": {
@@ -192,6 +229,10 @@
           "legal action",
           "penalty"
         ]
+      },
+      "resume": {
+        "fr": "te menace (police, amende, poursuite)",
+        "en": "threatens you (police, fine, lawsuit)"
       }
     },
     "sextorsion": {
@@ -218,6 +259,10 @@
           "compromising video",
           "all your contacts"
         ]
+      },
+      "resume": {
+        "fr": "fait du chantage",
+        "en": "is blackmailing you"
       }
     },
     "action": {
@@ -255,6 +300,10 @@
           "update your",
           "log in to"
         ]
+      },
+      "resume": {
+        "fr": "te pousse à cliquer ou à confirmer tes informations",
+        "en": "pushes you to click or confirm your details"
       }
     },
     "sensible": {
@@ -297,6 +346,161 @@
           "social insurance number",
           "bank details",
           "card number"
+        ]
+      },
+      "resume": {
+        "fr": "demande des informations confidentielles",
+        "en": "asks for confidential information"
+      }
+    },
+    "proche": {
+      "points": 20,
+      "raison": {
+        "fr": "Se fait passer pour un proche (nouveau numéro, téléphone brisé…)",
+        "en": "Pretends to be someone close to you (new number, broken phone…)"
+      },
+      "resume": {
+        "fr": "se fait passer pour un proche",
+        "en": "pretends to be someone close to you"
+      },
+      "mots": {
+        "fr": [
+          "nouveau numéro",
+          "mon nouveau numéro",
+          "changé de numéro",
+          "j'ai changé de numéro",
+          "mon téléphone est brisé",
+          "mon cell est brisé",
+          "mon cellulaire est brisé",
+          "mon téléphone est cassé",
+          "j'ai perdu mon téléphone",
+          "j'ai perdu mon cell",
+          "je t'écris d'un autre numéro",
+          "je t'écris d'un nouveau numéro",
+          "enregistre ce numéro",
+          "efface l'ancien numéro",
+          "c'est ton petit-fils",
+          "c'est ta petite-fille",
+          "ton petit-fils",
+          "ta petite-fille",
+          "j'ai eu un accident",
+          "je suis au poste de police",
+          "pour la caution"
+        ],
+        "en": [
+          "new number",
+          "my new number",
+          "changed my number",
+          "my phone broke",
+          "my phone is broken",
+          "lost my phone",
+          "save this number",
+          "it's your grandson",
+          "it's your granddaughter",
+          "your grandson",
+          "your granddaughter",
+          "i was in an accident",
+          "for bail"
+        ]
+      }
+    },
+    "secret": {
+      "points": 25,
+      "raison": {
+        "fr": "Te demande de garder le secret",
+        "en": "Asks you to keep it secret"
+      },
+      "resume": {
+        "fr": "te demande de garder le secret",
+        "en": "asks you to keep it secret"
+      },
+      "mots": {
+        "fr": [
+          "n'en parle pas",
+          "n'en parle à personne",
+          "ne le dis à personne",
+          "ne dis rien à",
+          "garde ça entre nous",
+          "garde ça pour toi",
+          "c'est un secret",
+          "ne préviens pas",
+          "n'en parlez à personne",
+          "ne dites rien à"
+        ],
+        "en": [
+          "don't tell",
+          "do not tell",
+          "keep this between us",
+          "keep it a secret",
+          "don't tell anyone"
+        ]
+      }
+    },
+    "messagerie": {
+      "points": 15,
+      "raison": {
+        "fr": "Veut continuer la conversation sur une autre messagerie",
+        "en": "Wants to continue the conversation on another messaging app"
+      },
+      "resume": {
+        "fr": "veut continuer la conversation ailleurs (WhatsApp, Telegram…)",
+        "en": "wants to move the conversation elsewhere (WhatsApp, Telegram…)"
+      },
+      "mots": {
+        "fr": [
+          "whatsapp",
+          "telegram",
+          "wechat",
+          "ajoute-moi sur",
+          "écris-moi sur",
+          "écrivez-nous sur",
+          "contactez-nous sur",
+          "contacte-moi sur",
+          "on peut jaser sur",
+          "on peut parler sur"
+        ],
+        "en": [
+          "add me on",
+          "text me on",
+          "message me on",
+          "contact us on",
+          "chat on"
+        ]
+      }
+    },
+    "alerte": {
+      "points": 15,
+      "raison": {
+        "fr": "Prétend qu'il y a une activité suspecte sur ton compte",
+        "en": "Claims there is suspicious activity on your account"
+      },
+      "resume": {
+        "fr": "invente un problème de sécurité pour te faire réagir",
+        "en": "invents a security problem to make you react"
+      },
+      "mots": {
+        "fr": [
+          "commande suspecte",
+          "activité suspecte",
+          "transaction suspecte",
+          "connexion suspecte",
+          "activité inhabituelle",
+          "connexion inhabituelle",
+          "tentative de connexion",
+          "accès non autorisé",
+          "achat non autorisé",
+          "compte compromis",
+          "compte piraté"
+        ],
+        "en": [
+          "suspicious activity",
+          "suspicious order",
+          "suspicious transaction",
+          "unusual activity",
+          "unusual sign-in",
+          "unauthorized access",
+          "unauthorized purchase",
+          "account compromised"
         ]
       }
     }
@@ -487,6 +691,50 @@
       ],
       "instagram": [
         "instagram.com"
+      ],
+      "ramq": [
+        "ramq.gouv.qc.ca"
+      ],
+      "fizz": [
+        "fizz.ca"
+      ],
+      "koodo": [
+        "koodomobile.com"
+      ],
+      "telus": [
+        "telus.com"
+      ],
+      "rogers": [
+        "rogers.com"
+      ],
+      "spotify": [
+        "spotify.com"
+      ],
+      "disneyplus": [
+        "disneyplus.com"
+      ],
+      "walmart": [
+        "walmart.ca",
+        "walmart.com"
+      ],
+      "costco": [
+        "costco.ca",
+        "costco.com"
+      ],
+      "uber": [
+        "uber.com"
+      ],
+      "usps": [
+        "usps.com"
+      ],
+      "intelcom": [
+        "intelcom.ca"
+      ],
+      "tangerine": [
+        "tangerine.ca"
+      ],
+      "cibc": [
+        "cibc.com"
       ]
     }
   },
@@ -814,6 +1062,462 @@
         "vulva",
         "xx"
       ]
+    }
+  },
+  "types": {
+    "sextorsion": {
+      "nom": {
+        "fr": "une tentative de sextorsion",
+        "en": "a sextortion attempt"
+      },
+      "conseil": {
+        "fr": "C'est presque toujours du bluff. Ne paie pas et ne réponds pas : signale le message et change ton mot de passe.",
+        "en": "It's almost always a bluff. Don't pay and don't reply: report the message and change your password."
+      },
+      "mots": {
+        "fr": [
+          "webcam",
+          "vidéo",
+          "vidéos",
+          "photos intimes",
+          "piraté",
+          "contacts",
+          "publiée"
+        ],
+        "en": [
+          "webcam",
+          "video",
+          "videos",
+          "intimate",
+          "hacked",
+          "contacts"
+        ]
+      }
+    },
+    "proche": {
+      "nom": {
+        "fr": "une arnaque du faux proche",
+        "en": "a fake relative scam"
+      },
+      "conseil": {
+        "fr": "Avant d'envoyer de l'argent, appelle ton proche à son ancien numéro ou pose-lui une question que seul lui connaît.",
+        "en": "Before sending money, call your relative on their old number or ask a question only they would know."
+      },
+      "mots": {
+        "fr": [
+          "maman",
+          "papa",
+          "grand-maman",
+          "grand-papa",
+          "mamie",
+          "papi",
+          "ta fille",
+          "ton fils",
+          "petit-fils",
+          "petite-fille",
+          "nouveau numéro",
+          "changé de numéro",
+          "téléphone est brisé",
+          "accident",
+          "caution",
+          "c'est moi",
+          "enregistre ce numéro",
+          "téléphone brisé",
+          "cell est brisé"
+        ],
+        "en": [
+          "mom",
+          "dad",
+          "grandma",
+          "grandpa",
+          "grandson",
+          "granddaughter",
+          "new number",
+          "phone broke",
+          "bail",
+          "it's me",
+          "this is my new number"
+        ]
+      }
+    },
+    "heritage": {
+      "nom": {
+        "fr": "une arnaque à l'héritage ou à l'avance de frais",
+        "en": "an inheritance or advance-fee scam"
+      },
+      "conseil": {
+        "fr": "Personne ne te verse des millions par message. N'envoie jamais tes informations bancaires ni de « frais » pour débloquer un montant.",
+        "en": "Nobody sends you millions by message. Never send your banking details or a 'fee' to unlock money."
+      },
+      "mots": {
+        "fr": [
+          "héritage",
+          "héritier",
+          "fonds",
+          "transférer des fonds",
+          "millions",
+          "avocat",
+          "notaire",
+          "plateforme pétrolière"
+        ],
+        "en": [
+          "inheritance",
+          "beneficiary",
+          "funds",
+          "million",
+          "lawyer",
+          "compensation fund",
+          "awarded"
+        ]
+      }
+    },
+    "romance": {
+      "nom": {
+        "fr": "une arnaque sentimentale",
+        "en": "a romance scam"
+      },
+      "conseil": {
+        "fr": "Méfie-toi des inconnus très chaleureux qui veulent vite changer de messagerie : ils finissent presque toujours par demander de l'argent.",
+        "en": "Be wary of very friendly strangers who quickly want to switch apps: they almost always end up asking for money."
+      },
+      "mots": {
+        "fr": [
+          "profil",
+          "magnifique",
+          "célibataire",
+          "rencontre",
+          "trompé de numéro",
+          "trompée de numéro",
+          "jaser"
+        ],
+        "en": [
+          "profile",
+          "beautiful",
+          "single",
+          "wrong number",
+          "dating",
+          "lonely"
+        ]
+      }
+    },
+    "support": {
+      "nom": {
+        "fr": "un faux support technique",
+        "en": "a fake tech support scam"
+      },
+      "conseil": {
+        "fr": "Microsoft, Apple ou ton fournisseur Internet ne t'appellent jamais pour un virus. Ne donne jamais l'accès à ton ordinateur.",
+        "en": "Microsoft, Apple or your internet provider never contact you about a virus. Never give anyone remote access to your computer."
+      },
+      "mots": {
+        "fr": [
+          "virus",
+          "infecté",
+          "ordinateur",
+          "soutien technique",
+          "support technique",
+          "technicien",
+          "microsoft",
+          "windows",
+          "apple",
+          "piraté",
+          "sécuriser vos données"
+        ],
+        "en": [
+          "virus",
+          "viruses",
+          "infected",
+          "computer",
+          "tech support",
+          "technician",
+          "microsoft",
+          "windows",
+          "apple",
+          "hacked"
+        ]
+      }
+    },
+    "emploi": {
+      "nom": {
+        "fr": "une fausse offre d'emploi",
+        "en": "a fake job offer"
+      },
+      "conseil": {
+        "fr": "Un vrai employeur ne recrute pas par texto, ne te paie pas pour presque rien et ne te demande jamais d'avancer de l'argent.",
+        "en": "A real employer doesn't recruit by text, doesn't pay you for almost nothing and never asks you to pay upfront."
+      },
+      "mots": {
+        "fr": [
+          "emploi",
+          "poste",
+          "travail",
+          "télétravail",
+          "à domicile",
+          "par jour",
+          "par semaine",
+          "recrutement",
+          "cv",
+          "candidature",
+          "salaire",
+          "aucune expérience"
+        ],
+        "en": [
+          "job",
+          "hiring",
+          "work from home",
+          "per day",
+          "per week",
+          "salary",
+          "no experience",
+          "recruiter"
+        ]
+      }
+    },
+    "investissement": {
+      "nom": {
+        "fr": "une arnaque à l'investissement ou à la crypto",
+        "en": "an investment or crypto scam"
+      },
+      "conseil": {
+        "fr": "Aucun placement sérieux ne garantit des gains rapides. N'envoie jamais d'argent ni de crypto à quelqu'un rencontré en ligne.",
+        "en": "No real investment guarantees fast profits. Never send money or crypto to someone you met online."
+      },
+      "mots": {
+        "fr": [
+          "bitcoin",
+          "crypto",
+          "cryptomonnaie",
+          "usdt",
+          "trading",
+          "investir",
+          "investissez",
+          "investissement",
+          "rendement",
+          "doublez",
+          "plateforme",
+          "profit",
+          "argent facile"
+        ],
+        "en": [
+          "bitcoin",
+          "crypto",
+          "trading",
+          "invest",
+          "investment",
+          "returns",
+          "double your money",
+          "profit",
+          "wallet"
+        ]
+      }
+    },
+    "prix": {
+      "nom": {
+        "fr": "un faux concours ou un faux prix",
+        "en": "a fake prize or contest"
+      },
+      "conseil": {
+        "fr": "On ne gagne pas un concours auquel on n'a pas participé, et un vrai prix ne demande jamais de frais à payer.",
+        "en": "You can't win a contest you didn't enter, and a real prize never asks you to pay a fee."
+      },
+      "mots": {
+        "fr": [
+          "félicitations",
+          "gagné",
+          "gagnant",
+          "gagnante",
+          "gagnez",
+          "tiré au sort",
+          "tirage",
+          "loterie",
+          "concours",
+          "prix",
+          "récompense",
+          "sélectionné",
+          "cadeau"
+        ],
+        "en": [
+          "congratulations",
+          "won",
+          "winner",
+          "prize",
+          "reward",
+          "selected",
+          "gift card",
+          "lottery"
+        ]
+      }
+    },
+    "gouvernement": {
+      "nom": {
+        "fr": "une fausse agence gouvernementale",
+        "en": "a fake government agency"
+      },
+      "conseil": {
+        "fr": "Le gouvernement ne menace jamais d'arrestation par texto et n'exige jamais de paiement en cartes-cadeaux ou en crypto. Appelle l'organisme à son numéro officiel.",
+        "en": "The government never threatens arrest by text and never asks for payment in gift cards or crypto. Call the agency at its official number."
+      },
+      "mots": {
+        "fr": [
+          "arc",
+          "agence du revenu",
+          "revenu québec",
+          "service canada",
+          "saaq",
+          "ramq",
+          "impôt",
+          "impôts",
+          "fraude fiscale",
+          "assurance sociale",
+          "nas",
+          "mandat",
+          "contravention",
+          "permis",
+          "grc",
+          "police",
+          "gouvernement"
+        ],
+        "en": [
+          "cra",
+          "irs",
+          "tax",
+          "taxes",
+          "government",
+          "warrant",
+          "social insurance",
+          "ssn",
+          "police"
+        ]
+      }
+    },
+    "colis": {
+      "nom": {
+        "fr": "une arnaque au colis",
+        "en": "a package delivery scam"
+      },
+      "conseil": {
+        "fr": "Aucun transporteur ne demande de payer des frais par texto. Vérifie ton suivi directement sur le site officiel du transporteur, sans passer par le lien.",
+        "en": "No courier asks you to pay fees by text message. Check your tracking directly on the courier's official website, not through the link."
+      },
+      "mots": {
+        "fr": [
+          "colis",
+          "livraison",
+          "livrer",
+          "livré",
+          "envoi",
+          "expédition",
+          "douane",
+          "dédouanement",
+          "postes canada",
+          "purolator",
+          "intelcom",
+          "fedex",
+          "dhl",
+          "ups",
+          "centre de tri",
+          "suivi"
+        ],
+        "en": [
+          "package",
+          "parcel",
+          "delivery",
+          "shipment",
+          "customs",
+          "canada post",
+          "usps",
+          "redelivery",
+          "tracking"
+        ]
+      }
+    },
+    "abonnement": {
+      "nom": {
+        "fr": "un faux problème de compte ou d'abonnement",
+        "en": "a fake account or subscription problem"
+      },
+      "conseil": {
+        "fr": "Ouvre toi-même l'application ou le site officiel (sans cliquer sur le lien) pour vérifier ton compte.",
+        "en": "Open the official app or website yourself (without clicking the link) to check your account."
+      },
+      "mots": {
+        "fr": [
+          "abonnement",
+          "forfait",
+          "netflix",
+          "disney",
+          "spotify",
+          "amazon",
+          "paypal",
+          "apple id",
+          "vidéotron",
+          "bell",
+          "fizz",
+          "rogers",
+          "telus",
+          "hydro-québec",
+          "paiement refusé",
+          "mode de paiement",
+          "renouvelé",
+          "réactiver",
+          "réactivez"
+        ],
+        "en": [
+          "subscription",
+          "netflix",
+          "disney",
+          "spotify",
+          "amazon",
+          "paypal",
+          "apple id",
+          "payment declined",
+          "billing",
+          "renew"
+        ]
+      }
+    },
+    "banque": {
+      "nom": {
+        "fr": "une arnaque bancaire (hameçonnage)",
+        "en": "a bank phishing scam"
+      },
+      "conseil": {
+        "fr": "Ta banque ne te demandera jamais ton NIP, ton mot de passe ou un code par texto ou courriel. Appelle le numéro au dos de ta carte.",
+        "en": "Your bank will never ask for your PIN, password or a code by text or email. Call the number on the back of your card."
+      },
+      "mots": {
+        "fr": [
+          "banque",
+          "bancaire",
+          "compte bancaire",
+          "carte",
+          "desjardins",
+          "rbc",
+          "td",
+          "bmo",
+          "scotia",
+          "banque nationale",
+          "tangerine",
+          "interac",
+          "virement",
+          "nip",
+          "accèsd",
+          "connexion inhabituelle",
+          "activité inhabituelle",
+          "dépôt"
+        ],
+        "en": [
+          "bank",
+          "banking",
+          "account",
+          "card",
+          "interac",
+          "e-transfer",
+          "deposit",
+          "unusual activity",
+          "pin"
+        ]
+      }
     }
   }
 }

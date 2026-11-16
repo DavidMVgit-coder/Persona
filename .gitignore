@@ -7,5 +7,3 @@ backend/data/feedback.csv
 .pytest_cache/
 node_modules/
 
-# Généré par `npm run build` depuis frontend/src/*.ts
-frontend/static/js/

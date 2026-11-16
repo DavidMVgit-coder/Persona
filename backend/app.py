@@ -1,9 +1,10 @@
 import csv
 import hmac
-import joblib
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, Response, abort, jsonify, render_template, request
 
 import config
+import ia
+import typescript_web
 from abus import analyser_abus
 from i18n import langue_valide, t
 from phone import analyser_numero
@@ -15,12 +16,10 @@ app = Flask(
     static_folder=str(config.FRONTEND_DIR / "static"),
 )
 
-# Le modèle est optionnel : sans model.joblib, on utilise seulement les règles
-MODEL = joblib.load(config.MODEL_PATH) if config.MODEL_PATH.exists() else None
+# L'IA est optionnelle : sans model.joblib (ou s'il est trop ancien), on utilise seulement les règles
+MODEL = ia.charger()
 if MODEL is None:
-    print("model.joblib introuvable : lance `python train.py` (mode règles seulement).")
-if not (config.FRONTEND_DIR / "static" / "js" / "app.js").exists():
-    print("frontend/static/js/app.js introuvable : lance `npm install` puis `npm run build` dans frontend/.")
+    print("IA indisponible : lance `python train.py` dans backend/ (mode règles seulement).")
 
 
 def niveau(score: int) -> str:
@@ -32,18 +31,15 @@ def niveau(score: int) -> str:
 
 
 def evaluer(kind: str, contenu: str, langue: str):
+    """Renvoie (score, raisons, avis de l'IA ou None)."""
     if kind == "phone":
-        return analyser_numero(contenu, langue)
+        return (*analyser_numero(contenu, langue), None)
 
-    score_regles, raisons = analyser_regles(contenu, langue)
     if MODEL is None:
-        return score_regles, raisons
+        return (*analyser_regles(contenu, langue), None)
 
-    proba_ml = MODEL.predict_proba([contenu])[0][1] * 100
-    if proba_ml >= 60:
-        raisons.append(t(langue, "ml"))
-    score = int(max(0.6 * proba_ml + 0.4 * score_regles, 0.8 * score_regles))
-    return min(100, score), raisons
+    avis = MODEL.analyser(contenu, langue)
+    return avis.score, avis.raisons, avis
 
 
 def cle_valide() -> bool:
@@ -73,6 +69,15 @@ def index():
     return render_template("index.html")
 
 
+@app.get("/js/<nom>.js")
+def javascript(nom: str):
+    """Le navigateur demande /js/app.js : on lui sert frontend/src/app.ts traduit en JavaScript."""
+    try:
+        return Response(typescript_web.traduire(nom), mimetype="text/javascript")
+    except typescript_web.TypeScriptIntrouvable:
+        abort(404)
+
+
 @app.post("/analyser")
 def analyser():
     langue = lire_langue()
@@ -82,10 +87,24 @@ def analyser():
     if kind is None:
         return jsonify(erreur=t(langue, "err.champs")), 400
 
-    score, raisons = evaluer(kind, contenu, langue)
+    score, raisons, avis = evaluer(kind, contenu, langue)
     # Insultes / diffamation / menaces : signalées à part, sans changer le score de scam
     alertes = [] if kind == "phone" else analyser_abus(contenu, langue)
-    return jsonify(score=score, niveau=niveau(score), raisons=raisons, alertes=alertes)
+    reponse = dict(score=score, niveau=niveau(score), raisons=raisons, alertes=alertes)
+    if avis is not None:
+        # « Analyse IA » : verdict, résumé, type d'arnaque, conseil, indices, scam connu le plus proche
+        reponse["ia"] = dict(
+            verdict=avis.verdict,
+            scam=avis.verdict == "scam",            # gardé pour les clients existants (app Android)
+            confiance=avis.confiance,
+            resume=avis.resume,
+            type=avis.type,
+            conseil=avis.conseil,
+            indices=avis.indices,
+            indices_vers_scam=avis.indices_vers_scam,
+            similaire=avis.similaire,
+        )
+    return jsonify(**reponse)
 
 
 @app.post("/feedback")

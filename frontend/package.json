@@ -2,7 +2,7 @@
   "name": "persona",
   "private": true,
   "scripts": {
-    "build": "tsc",
+    "check": "tsc",
     "watch": "tsc --watch"
   },
   "devDependencies": {
